@@ -1,0 +1,5 @@
+selenium
+webdriver-manager
+undetected-chromedriver
+autoit
+pandas
