@@ -65,8 +65,18 @@ def clicar_links_tabela(driver):
 
     except Exception as e:
         print(f"Erro ao processar tabela: {e}")
-def realizar_login():
+def realizar_login(driver):
     print("Realizando LOGIN")
+    usuario = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="txtUsuario"]'))
+    )
+    usuario.send_keys(USUARIO)
+    time.sleep(0.5)
+    usuario = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="txtSenha"]'))
+    )
+    usuario.send_keys(SENHA)
+    
 def aguardar_enter(driver):
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
@@ -113,7 +123,8 @@ driver.implicitly_wait(10)
 try:
     # Abra a página desejada
     driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
-
+    time.sleep(2)
+    realizar_login(driver)
     # Aguarda o F2 e tenta localizar o elemento na nova aba
     elemento = aguardar_enter(driver)
 
