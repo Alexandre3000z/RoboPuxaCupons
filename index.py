@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 import undetected_chromedriver as uc
 import keyboard  # Biblioteca para capturar teclas
 import autoit
+from login import SENHA, USUARIO
 
 def clicar_links_tabela(driver):
     try:
@@ -64,7 +65,8 @@ def clicar_links_tabela(driver):
 
     except Exception as e:
         print(f"Erro ao processar tabela: {e}")
-
+def realizar_login():
+    print("Realizando LOGIN")
 def aguardar_enter(driver):
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
@@ -96,7 +98,6 @@ def aguardar_enter(driver):
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
-
 # Adicionando argumentos para permitir pop-ups e evitar bloqueios
 options.add_argument("--disable-popup-blocking")
 options.add_argument("--disable-blink-features=AutomationControlled")
