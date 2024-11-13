@@ -162,8 +162,10 @@ def comeca_consulta(driver):
     )
     botaoConsulta.click()
     
-    time.sleep(1)
-            
+    time.sleep(2)
+    
+
+                    
 def aguardar_enter(driver):
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
@@ -184,7 +186,13 @@ def aguardar_enter(driver):
         element = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="table-search-coupons"]'))
         )
-        print('ACHOUUUU')
+        
+        botao100 = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button[4]'))
+        )
+        botao100.click()
+        
+        print('Clickou no botão 100')
         
         # Chama a função para clicar nos links da tabela
         clicar_links_tabela(driver)
@@ -214,7 +222,7 @@ try:
     driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
     time.sleep(2)
     realizar_login(driver)
-    teste = "69390223"
+    teste = "69077339"
     iniciar_processo(driver, teste)
     # Aguarda o F2 e tenta localizar o elemento na nova aba
     elemento = aguardar_enter(driver)
