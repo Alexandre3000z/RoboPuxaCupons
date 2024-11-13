@@ -167,9 +167,9 @@ def comeca_consulta(driver):
 
                     
 def aguardar_enter(driver):
-    print("Pressione F2 para continuar...")
-    keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
-    print("Continuando...")
+    # print("Pressione F2 para continuar...")
+    # keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
+    # print("Continuando...")
 
     # Trocar para a nova aba
     abas = driver.window_handles
