@@ -193,9 +193,20 @@ def aguardar_enter(driver):
         botao100.click()
         
         print('Clickou no botão 100')
+        time.sleep(2)
         
-        # Chama a função para clicar nos links da tabela
-        clicar_links_tabela(driver)
+        quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
+        print(len(quadrados))
+        
+        cont = len(quadrados) - 2
+        for i in range(cont):
+            quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
+            quadradoAtual.click()
+            
+            time.sleep(2)    
+            # Chama a função para clicar nos links da tabela
+            clicar_links_tabela(driver)
+            time.sleep(2)
         
         return element
     except Exception as e:
@@ -217,30 +228,36 @@ options.add_argument("--ignore-certificate-errors")
 driver = uc.Chrome(service=service, options=options)
 driver.implicitly_wait(10)
 
+
+    
 try:
-    # Abra a página desejada
-    driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
-    time.sleep(2)
-    realizar_login(driver)
-    teste = "69077339"
-    iniciar_processo(driver, teste)
-    # Aguarda o F2 e tenta localizar o elemento na nova aba
-    elemento = aguardar_enter(driver)
-
-    if elemento:
-        # Elemento encontrado (opcional, já que a função clicar_links_tabela já foi chamada)
-        elemento_texto = elemento.text
-        print(f"Texto do elemento: {elemento_texto}")
-
-finally:
+    for item in escricoes:
+        # Abra a página desejada
+        driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+        time.sleep(2)
+        realizar_login(driver)
+        # teste = "69077339"
+        iniciar_processo(driver, item)
+        # Aguarda o F2 e tenta localizar o elemento na nova aba
+        elemento = aguardar_enter(driver)
+        
+        #Saindo do login para depois logar de novo
     time.sleep(5)
     sair = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[1]/div[1]/img[1]'))
         )
    
     sair.click()
-    print('clicou')
-    time.sleep(5)
+    time.sleep(30)
+    if elemento:
+        # Elemento encontrado (opcional, já que a função clicar_links_tabela já foi chamada)
+        elemento_texto = elemento.text
+        print(f"Texto do elemento: {elemento_texto}")
+
+finally:
+    
+    
+    
   
     # Feche o navegador após a execução
     driver.quit()
