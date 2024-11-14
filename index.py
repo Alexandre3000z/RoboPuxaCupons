@@ -26,7 +26,7 @@ def entrarDTE(driver):
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
     print("Continuando...")
-    
+    a
 def clicar_links_tabela(driver):
     try:
         # Encontra todas as linhas da tabela
