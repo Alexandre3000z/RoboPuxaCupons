@@ -23,6 +23,7 @@ print(escricoes)
 
 def entrarDTE(driver):
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
+    
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
     print("Continuando...")
@@ -237,15 +238,14 @@ def aguardar_enter(driver):
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
 
-# Adiciona o caminho para o perfil padrão
+# Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
 options.add_argument("--user-data-dir=C:/Users/pedro/AppData/Local/Google/Chrome/User Data")
-options.add_argument("--profile-directory=Default")
+options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
-# Adicionando argumentos para permitir pop-ups e evitar bloqueios
+# Configurações para evitar bloqueios
 options.add_argument("--disable-popup-blocking")
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("--disable-gpu")
-options.add_argument("--disable-extensions")
 options.add_argument("--allow-running-insecure-content")
 options.add_argument("--ignore-certificate-errors")
 
