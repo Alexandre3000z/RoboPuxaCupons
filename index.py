@@ -52,6 +52,8 @@ def entrarDTE(driver):
     )          
     botaoEntrar.click()
 
+    LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
+    print(LinhasTabela)
     
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
