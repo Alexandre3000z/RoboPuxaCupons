@@ -125,9 +125,11 @@ def iniciar_processo(driver, inscricaoEstadual):
             celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
             textoNome = celulaNome.text
             texto_da_celula = celula.text
+            
             if(texto_da_celula == inscricaoEstadual):
                 celula.click()
                 print(texto_da_celula,'', textoNome)
+                
 
 def comeca_consulta(driver):
     # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
