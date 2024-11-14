@@ -24,12 +24,14 @@ print(escricoes)
 def entrarDTE(driver):
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
 
+    time.sleep(5)
     inicio = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-index/div/div/div[2]/div[1]/div/div/a[1]/div'))
     )
                 
     inicio.click()
     
+    time.sleep(3)
      
     selecaoC = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
@@ -37,6 +39,7 @@ def entrarDTE(driver):
                 
     selecaoC.click()
 
+    time.sleep(3)
     ativo = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
     )        
