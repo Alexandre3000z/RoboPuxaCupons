@@ -236,6 +236,11 @@ def aguardar_enter(driver):
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
+
+# Adiciona o caminho para o perfil padrão
+options.add_argument("--user-data-dir=C:/Users/pedro/AppData/Local/Google/Chrome/User Data")
+options.add_argument("--profile-directory=Default")
+
 # Adicionando argumentos para permitir pop-ups e evitar bloqueios
 options.add_argument("--disable-popup-blocking")
 options.add_argument("--disable-blink-features=AutomationControlled")
