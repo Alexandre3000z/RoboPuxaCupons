@@ -23,7 +23,9 @@ print(escricoes)
 
 def entrarDTE(driver):
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
-    
+    print("Pressione F2 para continuar...")
+    keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
+    print("Continuando...")
     
 def clicar_links_tabela(driver):
     try:
