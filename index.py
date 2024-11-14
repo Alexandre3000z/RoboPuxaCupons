@@ -38,13 +38,11 @@ def clicar_links_tabela(driver):
                 
                 # Clica no link
                 link.click()
-                time.sleep(1.5)
                 download = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[3]'))
                 )
                 
                 download.click()
-                time.sleep(1.5)
                 fechar = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'close'))
                 )
