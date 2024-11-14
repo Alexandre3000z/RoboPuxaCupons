@@ -200,11 +200,11 @@ def aguardar_enter(driver):
         print(f"Erro ao encontrar o elemento: {e}")
         return None
         
-    try:        
-        quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
-        if(quadrados):
-            print(len(quadrados))
-        
+           
+    quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
+    if(quadrados):
+        print(len(quadrados))
+    
         cont = len(quadrados) - 2
         
         for i in range(cont):
@@ -215,13 +215,13 @@ def aguardar_enter(driver):
             # Chama a função para clicar nos links da tabela
             clicar_links_tabela(driver)
             time.sleep(2)
-        
-    except NoSuchElementException:
+    
+    else:
         clicar_links_tabela(driver)
             
    
         
-        return element
+    return element
         
 
 # Configuração do Chrome
