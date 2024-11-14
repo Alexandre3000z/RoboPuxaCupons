@@ -23,12 +23,31 @@ print(escricoes)
 
 def entrarDTE(driver):
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
+
+    inicio = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-index/div/div/div[2]/div[1]/div/div/a[1]/div'))
+    )
+                
+    inicio.click()
+    
      
     selecaoC = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
     )
                 
     selecaoC.click()
+
+    ativo = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+    )        
+    ativo.click()
+
+    time.sleep(1)
+
+    botaoEntrar = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
+    )          
+    botaoEntrar.click()
 
     
     print("Pressione F2 para continuar...")
