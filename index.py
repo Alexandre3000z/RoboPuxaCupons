@@ -18,6 +18,13 @@ entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: "
 entradaDataFinal = input("Agora digite o periodo final:")
 escricoes =  entradaEscricao.split(", ")
 print(escricoes)
+
+
+
+def entrarDTE(driver):
+    driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
+    
+    
 def clicar_links_tabela(driver):
     try:
         # Encontra todas as linhas da tabela
@@ -243,6 +250,8 @@ driver.implicitly_wait(10)
     
 try:
     for item in escricoes:
+        
+        entrarDTE(driver)
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
