@@ -8,6 +8,8 @@ from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc
 import keyboard  # Biblioteca para capturar teclas
 import autoit
+from selenium.common.exceptions import NoSuchElementException
+
 from login import SENHA, USUARIO
 
 # Solicita ao usuário para digitar uma string
@@ -167,9 +169,9 @@ def comeca_consulta(driver):
 
                     
 def aguardar_enter(driver):
-    # print("Pressione F2 para continuar...")
-    # keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
-    # print("Continuando...")
+    print("Pressione F2 para continuar...")
+    keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
+    print("Continuando...")
 
     # Trocar para a nova aba
     abas = driver.window_handles
@@ -194,24 +196,31 @@ def aguardar_enter(driver):
         
         print('Clickou no botão 100')
         time.sleep(2)
-        
-        quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
-        print(len(quadrados))
-        
-        cont = len(quadrados) - 2
-        for i in range(cont):
-            quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
-            quadradoAtual.click()
-            
-            time.sleep(2)    
-            # Chama a função para clicar nos links da tabela
-            clicar_links_tabela(driver)
-            time.sleep(2)
-        
-        return element
     except Exception as e:
         print(f"Erro ao encontrar o elemento: {e}")
         return None
+        
+    try:        
+        quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
+        if(quadrados):
+            print(len(quadrados))
+        
+        cont = len(quadrados) - 2
+        
+    except NoSuchElementException:
+        cont = 0
+            
+    for i in range(cont):
+        quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
+        quadradoAtual.click()
+        
+        time.sleep(2)
+        # Chama a função para clicar nos links da tabela
+        clicar_links_tabela(driver)
+        time.sleep(2)
+        
+        return element
+        
 
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
