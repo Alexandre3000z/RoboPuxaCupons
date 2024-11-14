@@ -208,7 +208,7 @@ def aguardar_enter(driver):
         cont = len(quadrados) - 2
         
     except NoSuchElementException:
-        cont = 0
+        cont = 1
             
     for i in range(cont):
         quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
