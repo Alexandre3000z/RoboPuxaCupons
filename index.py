@@ -23,6 +23,13 @@ print(escricoes)
 
 def entrarDTE(driver):
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
+     
+    selecaoC = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
+    )
+                
+    selecaoC.click()
+
     
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
