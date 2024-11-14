@@ -207,17 +207,19 @@ def aguardar_enter(driver):
         
         cont = len(quadrados) - 2
         
-    except NoSuchElementException:
-        cont = 1
+        for i in range(cont):
+            quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
+            quadradoAtual.click()
             
-    for i in range(cont):
-        quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
-        quadradoAtual.click()
+            time.sleep(2)
+            # Chama a função para clicar nos links da tabela
+            clicar_links_tabela(driver)
+            time.sleep(2)
         
-        time.sleep(2)
-        # Chama a função para clicar nos links da tabela
+    except NoSuchElementException:
         clicar_links_tabela(driver)
-        time.sleep(2)
+            
+   
         
         return element
         
