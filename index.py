@@ -21,7 +21,14 @@ print(escricoes)
 
 
 
-def entrarDTE(driver):
+def entrarDTE(driver, numeroIncricao):
+    # Verifica se o número tem 9 dígitos
+    if len(numeroIncricao) != 9:
+        raise ValueError("O número deve ter exatamente 9 dígitos")
+    
+    # Formata o número no padrão desejado
+    numero_formatado = f"{numeroIncricao[:2]}.{numeroIncricao[2:5]}.{numeroIncricao[5:8]}-{numeroIncricao[8]}"
+    
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
 
     time.sleep(5)
@@ -51,9 +58,26 @@ def entrarDTE(driver):
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
     )          
     botaoEntrar.click()
-
+    time.sleep(1)
     LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-    print(LinhasTabela)
+    
+    for linha in LinhasTabela:
+        cells = linha.find_elements(By.TAG_NAME, 'td')
+        inscricao = cells[1].text
+        if(numero_formatado == inscricao):
+            linha.click()
+            
+            time.sleep(1)
+            
+            confirma = WebDriverWait(driver,30).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'btn primary float-right mt-3'))
+            )
+            print('Localizou')
+            confirma.click()
+            
+        
+        
+
     
     print("Pressione F2 para continuar...")
     keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
@@ -289,7 +313,7 @@ driver.implicitly_wait(10)
 try:
     for item in escricoes:
         
-        entrarDTE(driver)
+        entrarDTE(driver,item)
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
