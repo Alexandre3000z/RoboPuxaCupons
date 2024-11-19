@@ -21,10 +21,11 @@ entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: "
 entradaDataFinal = input("Agora digite o periodo final:")
 escricoes =  entradaEscricao.split(", ")
 
+listaDeCTeAut = []
 # Diretório de downloads do usuário (substitua conforme necessário)
 downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
+print(downloads_directory)
 
-print(escricoes)
 
 
 
@@ -139,7 +140,7 @@ def entrarDTE(driver, numeroIncricao):
     EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
     )
     print('achou o botao de download')
-    time.sleep(20)          
+    time.sleep(2)          
     download.click()
     
     csvDownload = WebDriverWait(driver, 30).until(
@@ -158,20 +159,20 @@ def tratarCSV(directory):
     # Encontra o arquivo com a data de modificação mais recente
     latest_file = max(list_of_files, key=os.path.getmtime)
     df = pd.read_csv(latest_file)
+    # print(df.columns)  # Mostra o nome de todas as colunas
+    coluna = 'Unnamed: 0'
     # Verifica se a coluna "Chave de Acesso" existe no DataFrame
-    if 'Chave de Acesso' in df.columns:
+    if coluna in df.columns:
         # Armazena os valores da coluna "Chave de Acesso" em uma lista
-        chave_de_acesso_list = df['Chave de Acesso'].dropna().tolist()
-        print("Valores encontrados na coluna 'Chave de Acesso':")
-        print(chave_de_acesso_list)
+        chave_de_acesso_list = df[coluna].dropna().tolist()
+        chave_de_acesso_list = chave_de_acesso_list[3:-1]#Remover 3 primeiros e ultimo item
+        listaDeCTeAut.extend(chave_de_acesso_list)
+        
+        print('Foram encontrados ', len(chave_de_acesso_list), ' Cupons')
     else:
-        print("A coluna 'Chave de Acesso' não foi encontrada no CSV.")
+        print(f"A coluna {coluna} não foi encontrada no CSV.")  
           
             
-            
-            
-        
-        
 
     
     print("Pressione F2 para continuar...")
