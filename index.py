@@ -9,6 +9,8 @@ import undetected_chromedriver as uc
 import keyboard  # Biblioteca para capturar teclas
 import autoit
 from selenium.common.exceptions import NoSuchElementException
+import os
+import glob
 
 from login import SENHA, USUARIO
 
@@ -67,13 +69,79 @@ def entrarDTE(driver, numeroIncricao):
         if(numero_formatado == inscricao):
             linha.click()
             
+            time.sleep(5)
+            
+            confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
+            botaoEntrar2 = confirma[1]
+            botaoEntrar2.click()
+            # for botoes in confirma:
+            #     print("oi",botoes.text)
+            
+            siget = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
+            )
+            time.sleep(12)        
+            siget.click()
+            
+            
+            time.sleep(12)
+            autoit.send('{ENTER}')
+            time.sleep(5)
+            autoit.send('{ENTER}')
+            time.sleep(2)
+            autoit.send('{ENTER}')
             time.sleep(1)
             
-            confirma = WebDriverWait(driver,30).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'btn primary float-right mt-3'))
-            )
-            print('Localizou')
-            confirma.click()
+                    # Guarda o identificador da janela original
+            original_window = driver.current_window_handle
+
+            # Espera até que uma nova janela esteja aberta
+            WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+
+            # Captura todos os identificadores de janelas abertas
+            windows = driver.window_handles
+
+            # Muda para a nova janela
+            for window in windows:
+                if window != original_window:
+                    driver.switch_to.window(window)
+                    break
+            
+            NfeCfe = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
+            )          
+            NfeCfe.click()
+            
+            time.sleep(3)
+            
+            pesquisar = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+            )          
+            pesquisar.click()
+            
+            time.sleep(20)
+            
+            valor = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
+            )          
+            valor.click()
+            
+            time.sleep(5)
+            
+            download = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
+            )          
+            download.click()
+            
+            csvDownload = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+            ) 
+            csvDownload.click()
+                                
+            time.sleep(5000)
+            
+            
+            
             
         
         
