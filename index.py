@@ -11,6 +11,7 @@ import autoit
 from selenium.common.exceptions import NoSuchElementException
 import os
 import glob
+import pandas as pd
 
 from login import SENHA, USUARIO
 
@@ -19,6 +20,10 @@ entradaEscricao = input("Digite as inscrições estaduais separados por vírgula
 entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
 entradaDataFinal = input("Agora digite o periodo final:")
 escricoes =  entradaEscricao.split(", ")
+
+# Diretório de downloads do usuário (substitua conforme necessário)
+downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
+
 print(escricoes)
 
 
@@ -66,80 +71,102 @@ def entrarDTE(driver, numeroIncricao):
     for linha in LinhasTabela:
         cells = linha.find_elements(By.TAG_NAME, 'td')
         inscricao = cells[1].text
+       
+       
         if(numero_formatado == inscricao):
             linha.click()
             
-            time.sleep(5)
-            
-            confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
-            botaoEntrar2 = confirma[1]
-            botaoEntrar2.click()
-            # for botoes in confirma:
-            #     print("oi",botoes.text)
-            
-            siget = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
-            )
-            time.sleep(12)        
-            siget.click()
-            
-            
-            time.sleep(12)
-            autoit.send('{ENTER}')
-            time.sleep(5)
-            autoit.send('{ENTER}')
-            time.sleep(2)
-            autoit.send('{ENTER}')
-            time.sleep(1)
-            
-            # Guarda o identificador da janela original
-            original_window = driver.current_window_handle
+    time.sleep(5)
+        
+    confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
+    botaoEntrar2 = confirma[1]
+    botaoEntrar2.click()
+    # for botoes in confirma:
+    #     print("oi",botoes.text)
+    
+    siget = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
+    )
+    time.sleep(12)        
+    siget.click()
+    
+    
+    time.sleep(12)
+    autoit.send('{ENTER}')
+    time.sleep(5)
+    autoit.send('{ENTER}')
+    time.sleep(2)
+    autoit.send('{ENTER}')
+    time.sleep(1)
+    
+    # Guarda o identificador da janela original
+    original_window = driver.current_window_handle
 
-            # Espera até que uma nova janela esteja aberta
-            WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+    # Espera até que uma nova janela esteja aberta
+    WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
 
-            # Captura todos os identificadores de janelas abertas
-            windows = driver.window_handles
+    # Captura todos os identificadores de janelas abertas
+    windows = driver.window_handles
 
-            # Muda para a nova janela
-            for window in windows:
-                if window != original_window:
-                    driver.switch_to.window(window)
-                    break
-            
-            NfeCfe = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
-            )          
-            NfeCfe.click()
-            
-            time.sleep(3)
-            
-            pesquisar = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-            )          
-            pesquisar.click()
-            
-            time.sleep(20)
-            
-            valor = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
-            )          
-            valor.click()
-            
-            time.sleep(5)
-            
-            download = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
-            )          
-            download.click()
-            
-            csvDownload = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-            ) 
-            csvDownload.click()
+    # Muda para a nova janela
+    for window in windows:
+        if window != original_window:
+            driver.switch_to.window(window)
+            break
+    
+    NfeCfe = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
+    )          
+    NfeCfe.click()
+    
+    time.sleep(3)
+    
+    pesquisar = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+    )          
+    pesquisar.click()
+    
+    time.sleep(20)
+    
+    valor = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
+    )          
+    valor.click()
+    
+    time.sleep(5)
+    
+    download = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
+    )
+    print('achou o botao de download')
+    time.sleep(20)          
+    download.click()
+    
+    csvDownload = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+    ) 
+    csvDownload.click()
                                 
-            time.sleep(5000)
             
+     
+def tratarCSV(directory):
+    # Obtém todos os arquivos CSV no diretório especificado
+    list_of_files = glob.glob(os.path.join(directory, '*.csv'))
+    if not list_of_files:
+        print("Nenhum arquivo CSV encontrado.")
+        
+    # Encontra o arquivo com a data de modificação mais recente
+    latest_file = max(list_of_files, key=os.path.getmtime)
+    df = pd.read_csv(latest_file)
+    # Verifica se a coluna "Chave de Acesso" existe no DataFrame
+    if 'Chave de Acesso' in df.columns:
+        # Armazena os valores da coluna "Chave de Acesso" em uma lista
+        chave_de_acesso_list = df['Chave de Acesso'].dropna().tolist()
+        print("Valores encontrados na coluna 'Chave de Acesso':")
+        print(chave_de_acesso_list)
+    else:
+        print("A coluna 'Chave de Acesso' não foi encontrada no CSV.")
+          
             
             
             
@@ -382,6 +409,8 @@ try:
     for item in escricoes:
         
         entrarDTE(driver,item)
+        time.sleep(5)
+        tratarCSV(downloads_directory)
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
