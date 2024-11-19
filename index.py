@@ -92,57 +92,54 @@ def entrarDTE(driver, numeroIncricao):
             autoit.send('{ENTER}')
             time.sleep(1)
             
+            # Guarda o identificador da janela original
+            original_window = driver.current_window_handle
+
+            # Espera até que uma nova janela esteja aberta
+            WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+
+            # Captura todos os identificadores de janelas abertas
+            windows = driver.window_handles
+
+            # Muda para a nova janela
+            for window in windows:
+                if window != original_window:
+                    driver.switch_to.window(window)
+                    break
             
-def EntrarSiget(driver):
-    
-    # Guarda o identificador da janela original
-    original_window = driver.current_window_handle
-
-    # Espera até que uma nova janela esteja aberta
-    WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
-
-    # Captura todos os identificadores de janelas abertas
-    windows = driver.window_handles
-
-    # Muda para a nova janela
-    for window in windows:
-        if window != original_window:
-            driver.switch_to.window(window)
-            break
-    
-    NfeCfe = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
-    )          
-    NfeCfe.click()
-    
-    time.sleep(3)
-    
-    pesquisar = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-    )          
-    pesquisar.click()
-    
-    time.sleep(20)
-    
-    valor = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
-    )          
-    valor.click()
-    
-    time.sleep(5)
-    
-    download = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
-    )          
-    download.click()
-    
-    csvDownload = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-    ) 
-    csvDownload.click()
-                        
-    time.sleep(5000)
-                
+            NfeCfe = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
+            )          
+            NfeCfe.click()
+            
+            time.sleep(3)
+            
+            pesquisar = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+            )          
+            pesquisar.click()
+            
+            time.sleep(20)
+            
+            valor = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
+            )          
+            valor.click()
+            
+            time.sleep(5)
+            
+            download = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
+            )          
+            download.click()
+            
+            csvDownload = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+            ) 
+            csvDownload.click()
+                                
+            time.sleep(5000)
+            
             
             
             
@@ -385,7 +382,6 @@ try:
     for item in escricoes:
         
         entrarDTE(driver,item)
-        EntrarSiget(driver)
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
