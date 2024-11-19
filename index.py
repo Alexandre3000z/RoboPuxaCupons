@@ -12,19 +12,34 @@ from selenium.common.exceptions import NoSuchElementException
 import os
 import glob
 import pandas as pd
-
+from datetime import datetime, timedelta
+import calendar
 from login import SENHA, USUARIO
+
+# Data atual
+data_atual = datetime.now()
+
+# Subtrair um mês
+mes_passado = data_atual.replace(day=1) - timedelta(days=1)
+
+# Nome do mês passado
+nome_mes_passado = calendar.month_name[mes_passado.month]
 
 # Solicita ao usuário para digitar uma string
 entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
-entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
-entradaDataFinal = input("Agora digite o periodo final:")
+print(f'Serão emitidos todos os cupons de {nome_mes_passado}')
+# entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
+# entradaDataFinal = input("Agora digite o periodo final:")
+
+
 escricoes =  entradaEscricao.split(", ")
 
-listaDeCTeAut = []
+listaCFEtotal = []
+
+nomedaempresa = ''
 # Diretório de downloads do usuário (substitua conforme necessário)
 downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
-print(downloads_directory)
+print('Arquivos serão baixados em: ',downloads_directory)
 
 
 
@@ -82,8 +97,6 @@ def entrarDTE(driver, numeroIncricao):
     confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
     botaoEntrar2 = confirma[1]
     botaoEntrar2.click()
-    # for botoes in confirma:
-    #     print("oi",botoes.text)
     
     siget = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
@@ -139,7 +152,7 @@ def entrarDTE(driver, numeroIncricao):
     download = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
     )
-    print('achou o botao de download')
+
     time.sleep(2)          
     download.click()
     
@@ -147,10 +160,43 @@ def entrarDTE(driver, numeroIncricao):
     EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
     ) 
     csvDownload.click()
-                                
-            
-     
-def tratarCSV(directory):
+    
+    
+    #continuar o codigo aqui Alexandre
+    
+def BaixarOsCancelados(driver):
+    x = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
+    ) 
+    x.click()                                    
+    time.sleep(2)
+    
+    cancelados = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/app-root/div/app-nfce/div/div/section[2]/div/div/div/ul/li[2]/a'))
+    ) 
+    cancelados.click()          
+    
+    pesquisar = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
+    ) 
+    pesquisar.click()          
+    
+    mes = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
+    ) 
+    mes.click()  
+    
+    download = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
+    ) 
+    download.click()  
+    
+    csv = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+    ) 
+    csv.click()  
+    
+def tratarCSV(directory, lista):
     # Obtém todos os arquivos CSV no diretório especificado
     list_of_files = glob.glob(os.path.join(directory, '*.csv'))
     if not list_of_files:
@@ -159,32 +205,25 @@ def tratarCSV(directory):
     # Encontra o arquivo com a data de modificação mais recente
     latest_file = max(list_of_files, key=os.path.getmtime)
     df = pd.read_csv(latest_file)
-    # print(df.columns)  # Mostra o nome de todas as colunas
     coluna = 'Unnamed: 0'
     # Verifica se a coluna "Chave de Acesso" existe no DataFrame
     if coluna in df.columns:
         # Armazena os valores da coluna "Chave de Acesso" em uma lista
         chave_de_acesso_list = df[coluna].dropna().tolist()
         chave_de_acesso_list = chave_de_acesso_list[3:-1]#Remover 3 primeiros e ultimo item
-        listaDeCTeAut.extend(chave_de_acesso_list)
+        listaCFEtotal.extend(chave_de_acesso_list)
         
-        print('Foram encontrados ', len(chave_de_acesso_list), ' Cupons')
+        print('Foram encontrados ', len(chave_de_acesso_list), ' Cupons ', lista)
     else:
         print(f"A coluna {coluna} não foi encontrada no CSV.")  
           
             
 
     
-    print("Pressione F2 para continuar...")
-    keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
-    print("Continuando...")
-    
 def clicar_links_tabela(driver):
     try:
         # Encontra todas as linhas da tabela
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
-        
-        print(f"Número de linhas encontradas: {len(linhas)}")
 
         # Itera sobre cada linha
         for indice, linha in enumerate(linhas, 1):
@@ -192,7 +231,6 @@ def clicar_links_tabela(driver):
                 # Tenta encontrar o link 'a' na coluna específica
                 link = linha.find_element(By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a')
                 
-                print(f"Clicando no link da linha {indice}")
                 
                 # Rola a página até o elemento
                 driver.execute_script("arguments[0].scrollIntoView(true);", link)
@@ -208,21 +246,8 @@ def clicar_links_tabela(driver):
                     EC.presence_of_element_located((By.CLASS_NAME, 'close'))
                 )
                 fechar.click()
-                # autoit.send_key('{ENTER}')
-                # time.sleep(2)
-                # autoit.send_key('{ESC}')
-                # Tempo de espera entre cliques
-                time.sleep(1)
-                
-                # Aqui você pode adicionar lógica para:
-                # - Tratar a nova janela/aba
-                # - Coletar informações
-                # - Voltar para a página anterior
-                
-                # Exemplo de voltar para a página anterior
                 
                 
-                # Espera a tabela recarregar
                 WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="table-search-coupons"]'))
                 )
@@ -234,7 +259,7 @@ def clicar_links_tabela(driver):
     except Exception as e:
         print(f"Erro ao processar tabela: {e}")
         
-        
+   #PASSO 1 AMBIENTE SEGURO     
 def realizar_login(driver):
     print("Realizando LOGIN")
     
@@ -261,6 +286,8 @@ def realizar_login(driver):
     buttonLogin = driver.find_element(By.XPATH, '//*[@id="btEntrar"]')
     buttonLogin.click()
     
+    
+    #PASSO 2 AMBIENTE SEGURO   
 def iniciar_processo(driver, inscricaoEstadual):
         selectMFE = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="listaservico"]/li[11]/a'))
@@ -286,13 +313,16 @@ def iniciar_processo(driver, inscricaoEstadual):
             celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
             textoNome = celulaNome.text
             texto_da_celula = celula.text
-            
+            inscricaoEstadual = inscricaoEstadual.lstrip('0')
+
             if(texto_da_celula == inscricaoEstadual):
                 celula.click()
-                print(texto_da_celula,'', textoNome)
+                print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
+                break
+            
                 
 
-def comeca_consulta(driver):
+def comeca_consulta(driver, cfe):
     # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
     fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
@@ -301,23 +331,18 @@ def comeca_consulta(driver):
     
     
     link.click()
-    time.sleep(2)
+    # time.sleep(0.5)
     
     #Preencher periodo inicial.
-    dataincio = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
+    cfekey = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="cfeKey"]'))
         )
-    dataincio.send_keys(entradaDataInicio)
+    cfekey.clear()
+    time.sleep(0.2)
+    cfekey.send_keys(cfe)
     
-    time.sleep(1)
+    time.sleep(0.1)
     
-    #Preencher periodo final.
-    datafinal = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
-    )
-    datafinal.send_keys(entradaDataFinal)
-    
-    time.sleep(1)
     
     #Clica no botão consultar.
     botaoConsulta = WebDriverWait(driver, 20).until(
@@ -325,66 +350,38 @@ def comeca_consulta(driver):
     )
     botaoConsulta.click()
     
-    time.sleep(2)
+    # time.sleep(1.5)
     
 
-                    
-def aguardar_enter(driver):
-    print("Pressione F2 para continuar...")
-    keyboard.wait('f2')  # Aguarda o pressionamento da tecla F2
-    print("Continuando...")
-
-    # Trocar para a nova aba
+  #PASSO 3 AMBIENTE SEGURO                     
+def iniciarDownloads(driver):
+    time.sleep(13)    
+    # Captura as abas abertas no navegador
     abas = driver.window_handles
-    if len(abas) > 1:
-        driver.switch_to.window(abas[-1])
-        print("Mudou para a nova aba!")
-    else:
-        print("Nenhuma nova aba encontrada.")
 
-    # Tentar localizar o elemento específico
+    # Certifica-se de que há pelo menos 3 abas abertas
+    if len(abas) >= 3:
+        # Troca para a terceira aba (última aberta)
+        driver.switch_to.window(abas[2])  # O índice 2 representa a terceira aba
+    else:
+        print("A terceira aba não foi encontrada.")
+
+        
     try:
-        comeca_consulta(driver)
-        
-        element = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="table-search-coupons"]'))
-        )
-        
-        botao100 = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button[4]'))
-        )
-        botao100.click()
-        
-        print('Clickou no botão 100')
-        time.sleep(2)
+        for index, cupom in enumerate (listaCFEtotal, start=1):
+            comeca_consulta(driver,cupom)
+            clicar_links_tabela(driver)
+            # Mostrar o progresso
+            print(f"Baixando {index} de {len(listaCFEtotal)}")
+            
+            # Aqui você coloca o processamento para cada item
+            # Por exemplo:
+            print(f"Processando: {cupom}")
+            
     except Exception as e:
         print(f"Erro ao encontrar o elemento: {e}")
         return None
         
-           
-    quadrados = driver.find_elements(By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li')
-    if(quadrados):
-        print(len(quadrados))
-    
-        cont = len(quadrados) - 2
-        
-        for i in range(cont):
-            quadradoAtual = driver.find_element(By.XPATH, f'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li[{i+2}]/a')
-            quadradoAtual.click()
-            
-            time.sleep(2)
-            # Chama a função para clicar nos links da tabela
-            clicar_links_tabela(driver)
-            time.sleep(2)
-    
-    else:
-        clicar_links_tabela(driver)
-            
-   
-        
-    return element
-        
-
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
@@ -411,7 +408,11 @@ try:
         
         entrarDTE(driver,item)
         time.sleep(5)
-        tratarCSV(downloads_directory)
+        tratarCSV(downloads_directory, 'autorizados')
+        BaixarOsCancelados(driver)
+        time.sleep(5)
+        tratarCSV(downloads_directory, 'cancelados')
+
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
@@ -419,7 +420,7 @@ try:
         # teste = "69077339"
         iniciar_processo(driver, item)
         # Aguarda o F2 e tenta localizar o elemento na nova aba
-        elemento = aguardar_enter(driver)
+        iniciarDownloads(driver)
         
         #Saindo do login para depois logar de novo
     time.sleep(5)
@@ -429,16 +430,9 @@ try:
    
     sair.click()
     time.sleep(30)
-    if elemento:
-        # Elemento encontrado (opcional, já que a função clicar_links_tabela já foi chamada)
-        elemento_texto = elemento.text
-        print(f"Texto do elemento: {elemento_texto}")
 
 finally:
-    
-    
-    
-  
+ 
     # Feche o navegador após a execução
     driver.quit()
 
