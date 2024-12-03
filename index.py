@@ -223,14 +223,17 @@ def tratarCSV(directory, lista):
 def clicar_links_tabela(driver):
     try:
         # Encontra todas as linhas da tabela
-        linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
-
+        
+        linhas = WebDriverWait(driver, 30).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr'))
+                )
         # Itera sobre cada linha
         for indice, linha in enumerate(linhas, 1):
             try:
                 # Tenta encontrar o link 'a' na coluna específica
-                link = linha.find_element(By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a')
-                
+                link = WebDriverWait(driver, 30).until(
+                    EC.presence_of_element_located((By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a'))
+                )
                 
                 # Rola a página até o elemento
                 driver.execute_script("arguments[0].scrollIntoView(true);", link)
@@ -240,8 +243,8 @@ def clicar_links_tabela(driver):
                 download = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[3]'))
                 )
-                
                 download.click()
+                
                 fechar = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'close'))
                 )
@@ -408,7 +411,7 @@ try:
         
         entrarDTE(driver,item)
         time.sleep(5)
-        tratarCSV(downloads_directory, 'autorizados')
+        # tratarCSV(downloads_directory, 'autorizados')
         BaixarOsCancelados(driver)
         time.sleep(5)
         tratarCSV(downloads_directory, 'cancelados')
