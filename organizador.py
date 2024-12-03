@@ -1,51 +1,72 @@
 import os
 import locale
-import shutil
 from datetime import datetime
+import shutil
 
-# Define o locale para português do Brasil
-locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+# Tenta definir o locale para português do Brasil
+try:
+    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+except locale.Error:
+    print("Locale 'pt_BR.UTF-8' não está disponível. Usando configurações padrão.")
 
-# Obtém o diretório de Downloads do usuário
+# Obtém o caminho da área de trabalho e diretório de downloads
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
 downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
 
-# Obtém o ano e o mês atuais
-ano_atual = datetime.now().year
-mes_atual = datetime.now().strftime('%B')
-mes_atualNumero = datetime.now().month
-nome_mes = f"{mes_atualNumero:02d}-{mes_atual.capitalize()}"
+meses_map = {
+    1: "Janeiro",
+    2: "Fevereiro",
+    3: "Março",
+    4: "Abril",
+    5: "Maio",
+    6: "Junho",
+    7: "Julho",
+    8: "Agosto",
+    9: "Setembro",
+    10: "Outubro",
+    11: "Novembro",
+    12: "Dezembro"
+}
 
-# Loop para criar diretórios de 1 a 10
-for inscricao in range(1, 11):
-    # Define o caminho completo do diretório
-    diretorio = os.path.join(downloads_dir, str(inscricao), str(ano_atual), str(nome_mes))
-    
-    # Verifica se o diretório já existe, se não, cria
-    if not os.path.exists(diretorio):
-        os.makedirs(diretorio)
-        print(f"Diretório criado: {diretorio}")
-    else:
-        print(f"Diretório já existe: {diretorio}")
-    
-    # Converte 'inscricao' para string de dois dígitos
-    inscricao_str = f"{inscricao:02d}"
-    
-    # Lista de arquivos XML no diretório de destino
-    arquivos_existentes = set(os.listdir(diretorio))
-    
-    # Percorre todos os arquivos no diretório de Downloads
-    for arquivo in os.listdir(downloads_dir):
-        # Verifica se o arquivo tem extensão .xml
-        if arquivo.lower().endswith('.xml'):
-            # Caminho completo do arquivo
-            caminho_arquivo = os.path.join(downloads_dir, arquivo)
-            
-            # Verifica se o quinto e sexto dígito do nome do arquivo são iguais ao 'inscricao_str'
-            if len(arquivo) > 5 and arquivo[4:6] == inscricao_str:
-                # Verifica se o arquivo já não está presente no diretório de destino
-                if arquivo not in arquivos_existentes:
-                    # Move o arquivo para o diretório de destino
-                    shutil.move(caminho_arquivo, os.path.join(diretorio, arquivo))
-                    print(f"Arquivo {arquivo} movido para {diretorio} porque estava faltando")
+# Obtém o ano e o mês atuais
+ano = datetime.now().year
+ano_atual = str(ano)
+mes_atualNumero = datetime.now().month
+mes_atual = meses_map[mes_atualNumero]
+nome_mes = f"{mes_atualNumero:02d}-{mes_atual}"
+
+arquivos_existentes = set(os.listdir(downloads_dir))
+
+# Loop para criar diretórios apenas para arquivos XML
+for inscricao in arquivos_existentes:
+    origem = os.path.join(downloads_dir,inscricao)
+    if inscricao.lower().endswith('.xml'):
+        # Verifica se a substring tem o comprimento esperado
+        if len(inscricao) >= 6:
+            mesnumero = inscricao[4:6]
+
+            # Verifica se a substring é numérica antes de converter
+            if mesnumero.isdigit():
+                mes_arquivo_numero = int(mesnumero)
+
+                # Obter o nome do mês correspondente ao número
+                ano_do_arquivo = f'20{inscricao[2:4].strip()}'
+                destino = os.path.join(desktop_path, 'PastaOrganizada', inscricao[6:20], ano_do_arquivo, f'{mes_arquivo_numero}-{meses_map[mes_arquivo_numero]}')
+
+                arquivoFinal = os.path.join(destino,inscricao)
+                # Verifica se o diretório já existe, se não, cria
+                if not os.path.exists(destino):
+                    os.makedirs(destino)
+                    print(f"Diretório criado para {inscricao[6:20]}/{ano_do_arquivo}/{mes_arquivo_numero}-{meses_map[mes_arquivo_numero]}")
+                
+                if not os.path.exists(arquivoFinal):
+                    shutil.move(origem, destino)
+                    print(f'{inscricao} movido para {destino}')
+                
                 else:
-                    print(f"Arquivo {arquivo} já está presente no diretório {diretorio}")
+                    print(f'{inscricao}: O XML já existe na pasta')
+    
+            else:
+                print(f"Nome do arquivo inválido para conversão para mês: '{inscricao}'")
+        else:
+            print(f"Tamanho insuficiente para extrair mês do arquivo: '{inscricao}'")
