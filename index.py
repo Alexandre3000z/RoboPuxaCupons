@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc
 import keyboard  # Biblioteca para capturar teclas
 import autoit
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException,TimeoutException
 import os
 import glob
 import pandas as pd
@@ -226,9 +226,23 @@ def entrarDTE(driver, numeroIncricao, indice):
     time.sleep(12)        
     siget.click()
     
+      # Verificar se a janela de erro aparece
+    try:
+        error_modal = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, "SELETOR_XPATH_DA_JANELA_DE_ERRO"))
+        )
+        print("Janela de erro detectada. Tomando ação corretiva...")
+        close_button = error_modal.find_element(By.XPATH, "SELETOR_XPATH_DO_BOTAO_DE_FECHAR")
+        close_button.click()
+        print("Janela de erro fechada.")
+    except TimeoutException:
+        print("Nenhuma janela de erro detectada dentro do tempo limite.")
+
+
+    
     if indice == 0:
         print('Aguardar 1 minuto')
-        time.sleep(60)
+        time.sleep(40)
         autoit.send('{ENTER}')
     
     
@@ -274,6 +288,7 @@ def entrarDTE(driver, numeroIncricao, indice):
     )          
     pesquisar.click()
     
+    time.sleep(3)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 50).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
@@ -448,22 +463,25 @@ def tratarCSV(directory, lista):
             
 
     
-def clicar_links_tabela(driver):
+def clicar_links_tabela(driver, cont):
     try:
         # Encontra todas as linhas da tabela
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
-
+        
+        
         # Itera sobre cada linha
         for indice, linha in enumerate(linhas, 1):
-            print(indice)
-            if(indice % 100 == 0):
-                time.sleep(5)
-                autoit.send('{F5}')
-                time.sleep(5)
+            
             try:
+                print(cont)
+                if(cont % 50 == 0):
+                    time.sleep(5)
+                    driver.execute_script("location.reload(true);")  # Força a atualização da página sem cache
+                    time.sleep(5)
                 # Tenta encontrar o link 'a' na coluna específica
-                link = linha.find_element(By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a')
-                
+                link = WebDriverWait(driver, 100).until(
+                    EC.presence_of_element_located((By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a'))
+                )
                 
                 # Rola a página até o elemento
                 driver.execute_script("arguments[0].scrollIntoView(true);", link)
@@ -601,9 +619,10 @@ def iniciarDownloads(driver):
 
         
     try:
+        
         for index, cupom in enumerate (listaCFEtotal, start=1):
             comeca_consulta(driver,cupom)
-            clicar_links_tabela(driver)
+            clicar_links_tabela(driver,index)
             # Mostrar o progresso
             print(f"Baixando {index} de {len(listaCFEtotal)}")
             
@@ -668,7 +687,7 @@ try:
                 realizar_login(driver)
                 # teste = "69077339"
                 iniciar_processo(driver, item)
-                # Aguarda o F2 e tenta localizar o elemento na nova aba
+
                 iniciarDownloads(driver)
             else:
                 print('Empresa não tem cupons, indo para a próxima.')
