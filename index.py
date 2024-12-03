@@ -81,7 +81,7 @@ def entrarDTE(driver, numeroIncricao):
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
     )          
     botaoEntrar.click()
-    time.sleep(1)
+    time.sleep(15)
     LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
     
     for linha in LinhasTabela:
@@ -224,9 +224,8 @@ def clicar_links_tabela(driver):
     try:
         # Encontra todas as linhas da tabela
         
-        linhas = WebDriverWait(driver, 30).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr'))
-                )
+        linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
+
         # Itera sobre cada linha
         for indice, linha in enumerate(linhas, 1):
             try:
@@ -411,7 +410,7 @@ try:
         
         entrarDTE(driver,item)
         time.sleep(5)
-        # tratarCSV(downloads_directory, 'autorizados')
+        tratarCSV(downloads_directory, 'autorizados')
         BaixarOsCancelados(driver)
         time.sleep(5)
         tratarCSV(downloads_directory, 'cancelados')
