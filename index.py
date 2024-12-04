@@ -660,7 +660,7 @@ options.add_argument("--ignore-certificate-errors")
 driver = uc.Chrome(service=service, options=options)
 driver.implicitly_wait(10)
 
-
+# //*[@id="modalMensagem"]/div/div/div[1]/button   esse xpath pertence a mensagem de atenção que aparece depois dos 3 enter 
     
 try:
     pegarForAmbiente(driver)
