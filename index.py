@@ -223,6 +223,13 @@ def tratarCSV(directory, lista):
     
 def clicar_links_tabela(driver):
     try:
+        time.sleep(2)
+        blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
+        for index, item in enumerate(blocos):
+            if index == len(blocos) - 1:
+                item.click()
+        
+        time.sleep(5)    
         # Encontra todas as linhas da tabela
         
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
