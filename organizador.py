@@ -3,6 +3,32 @@ import locale
 from datetime import datetime
 import shutil
 
+def analisadorXmls(lista):
+    # Tenta definir o locale para português do Brasil
+    try:
+        locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    except locale.Error:
+        print("Locale 'pt_BR.UTF-8' não está disponível. Usando configurações padrão.")
+
+    # Obtém o caminho da área de trabalho e diretório de downloads
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+    pastaPrincipal = os.path.join(desktop_path, "PastaOrganizada")
+    
+    arquivos_xml = []
+    for root, dirs, files in os.walk(pastaPrincipal):
+        for file in files:
+            if file.endswith('.xml'):
+                arquivos_xml.append(os.path.join(root, file))
+    
+    listaXMLS = [os.path.basename(caminho).replace('.xml', '') for caminho in arquivos_xml]
+    print(listaXMLS)
+    
+    filtro = [item for item in lista if item not in listaXMLS]
+    
+    return filtro
+
+
 def organizarPastas():
     # Tenta definir o locale para português do Brasil
     try:
@@ -71,3 +97,5 @@ def organizarPastas():
                     print(f"Nome do arquivo inválido para conversão para mês: '{inscricao}'")
             else:
                 print(f"Tamanho insuficiente para extrair mês do arquivo: '{inscricao}'")
+                
+analisadorXmls()                
