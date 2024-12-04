@@ -371,6 +371,7 @@ def iniciarDownloads(driver):
 
         
     try:
+        print('esses são os xmls atuais',listaCFEtotal[2:10])
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
             comeca_consulta(driver,cupom)
