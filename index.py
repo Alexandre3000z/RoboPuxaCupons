@@ -15,6 +15,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 from login import SENHA, USUARIO
+from organizador import analisadorXmls
 
 # Data atual
 data_atual = datetime.now()
@@ -370,11 +371,12 @@ def iniciarDownloads(driver):
 
         
     try:
-        for index, cupom in enumerate (listaCFEtotal, start=1):
+        analisexml = analisadorXmls(listaCFEtotal)
+        for index, cupom in enumerate (analisexml, start=1):
             comeca_consulta(driver,cupom)
             clicar_links_tabela(driver)
             # Mostrar o progresso
-            print(f"Baixando {index} de {len(listaCFEtotal)}")
+            print(f"Baixando {index} de {len(analisexml)}")
             
             # Aqui você coloca o processamento para cada item
             # Por exemplo:
