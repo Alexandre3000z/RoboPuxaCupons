@@ -29,8 +29,8 @@ nome_mes_passado = calendar.month_name[mes_passado.month]
 # Solicita ao usuário para digitar uma string
 entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
 print(f'Serão emitidos todos os cupons de {nome_mes_passado}')
-# entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
-# entradaDataFinal = input("Agora digite o periodo final:")
+entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
+entradaDataFinal = input("Agora digite o periodo final:")
 
 
 escricoes =  entradaEscricao.split(", ")
@@ -336,7 +336,6 @@ def comeca_consulta(driver, cfe):
     link.click()
     # time.sleep(0.5)
     
-    #Preencher periodo inicial.
     cfekey = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cfeKey"]'))
         )
@@ -371,7 +370,7 @@ def iniciarDownloads(driver):
 
         
     try:
-        print('esses são os xmls atuais',listaCFEtotal[2:10])
+        # print('esses são os xmls atuais',listaCFEtotal[2:10])
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
             comeca_consulta(driver,cupom)
@@ -386,7 +385,60 @@ def iniciarDownloads(driver):
     except Exception as e:
         print(f"Erro ao encontrar o elemento: {e}")
         return None
-        
+def baixarCancelamento(driver):
+    print('Iniciando download dos cancelamentos')
+    time.sleep(3)
+    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+    # Agora encontre o link <a> dentro desse quarto <li>
+    link = fourth_li.find_element(By.TAG_NAME, 'a')
+    
+    
+    link.click()
+    
+    time.sleep(2)
+    
+    limpar = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
+        )
+    limpar.click()
+    
+    tipo = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
+        )
+    tipo.click()
+    
+    time.sleep(0.5)
+    
+    autoit.send('{DOWN}')
+    
+    time.sleep(0.4)
+    
+    autoit.send('{ENTER}')
+    
+    time.sleep(0.4)
+    inicioperiodo = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
+        )
+    time.sleep(0.2)
+    inicioperiodo.send_keys(entradaDataInicio)
+    
+    time.sleep(0.4)
+    finalperiodo = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
+        )
+    time.sleep(0.2)
+    finalperiodo.send_keys(entradaDataFinal)
+    
+    consulta = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
+        )
+    consulta.click()
+    
+    time.sleep(5)
+    clicar_links_tabela(driver)
+    time.sleep(10000)
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
@@ -426,6 +478,7 @@ try:
         iniciar_processo(driver, item)
         # Aguarda o F2 e tenta localizar o elemento na nova aba
         iniciarDownloads(driver)
+        baixarCancelamento(driver)
         
         #Saindo do login para depois logar de novo
     time.sleep(5)
