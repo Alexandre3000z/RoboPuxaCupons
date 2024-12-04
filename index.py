@@ -184,14 +184,15 @@ def BaixarOsCancelados(driver):
     
     mes = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
-    ) 
+    )
+    time.sleep(2)
     mes.click()  
-    
+    time.sleep(2)
     download = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
     ) 
     download.click()  
-    
+    time.sleep(2)
     csv = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
     ) 
@@ -223,14 +224,8 @@ def tratarCSV(directory, lista):
     
 def clicar_links_tabela(driver):
     try:
-        time.sleep(2)
-        blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
-        for index, item in enumerate(blocos):
-            if index == len(blocos) - 1:
-                item.click()
+        time.sleep(5)
         
-        time.sleep(5)    
-        # Encontra todas as linhas da tabela
         
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
 
@@ -381,7 +376,8 @@ def iniciarDownloads(driver):
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
             comeca_consulta(driver,cupom)
-            clicar_links_tabela(driver)
+            
+            clicar_links_tabela(driver)            
             # Mostrar o progresso
             print(f"Baixando {index} de {len(analisexml)}")
             
@@ -444,14 +440,13 @@ def baixarCancelamento(driver):
     consulta.click()
     
     time.sleep(5)
-    clicar_links_tabela(driver)
-    time.sleep(10000)
+    
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
 
 # Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
-options.add_argument("--user-data-dir=C:/Users/pedro/AppData/Local/Google/Chrome/User Data")
+options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
 options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
 # Configurações para evitar bloqueios
@@ -486,7 +481,27 @@ try:
         # Aguarda o F2 e tenta localizar o elemento na nova aba
         iniciarDownloads(driver)
         baixarCancelamento(driver)
+        blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
+        if blocos:
+            for index, item in enumerate(blocos):
+                if index == len(blocos) - 1:
+                    item.click()
+                    time.sleep(5)
+        else:
+            clicar_links_tabela(driver)            
+    
+        paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
+        if paginas:
+            for num, item in enumerate(paginas):
+                
+                if num != 0 and num != len(paginas) - 1:
+                    if num != 1:   
+                        item.click()
+                    clicar_links_tabela(driver)
         
+        else:
+            clicar_links_tabela(driver)              
+            
         #Saindo do login para depois logar de novo
     time.sleep(5)
     sair = WebDriverWait(driver, 200).until(

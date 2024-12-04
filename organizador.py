@@ -93,7 +93,8 @@ def organizarPastas():
                         print(f'{inscricao} movido para {destino}')
                     
                     else:
-                        print(f'{inscricao}: O XML já existe na pasta')
+                        os.remove(origem)
+                        print(f'{inscricao}: O XML já existe na pasta, arquivo removido com sucesso')
         
                 else:
                     print(f"Nome do arquivo inválido para conversão para mês: '{inscricao}'")
