@@ -15,7 +15,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 from login import SENHA, USUARIO
-from organizador import analisadorXmls
+from organizador import analisadorXmls, organizarPastas
 
 # Data atual
 data_atual = datetime.now()
@@ -224,14 +224,15 @@ def tratarCSV(directory, lista):
     
 def clicar_links_tabela(driver):
     try:
-        time.sleep(5)
-        
-        
+
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
 
         # Itera sobre cada linha
         for indice, linha in enumerate(linhas, 1):
             try:
+                if len(linhas) > 1:
+                    print(f'Baixando {indice} de {len(linhas)}')
+                    print(f'Processando: {linha.text}')
                 # Tenta encontrar o link 'a' na coluna específica
                 link = WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a'))
@@ -486,24 +487,25 @@ try:
             for index, item in enumerate(blocos):
                 if index == len(blocos) - 1:
                     item.click()
-                    time.sleep(5)
-        else:
-            clicar_links_tabela(driver)            
-    
-        paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
-        if paginas:
-            for num, item in enumerate(paginas):
-                
-                if num != 0 and num != len(paginas) - 1:
-                    if num != 1:   
-                        item.click()
-                    clicar_links_tabela(driver)
+                    time.sleep(5)            
+            #testarrrrrr
+            paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
+            if paginas:
+                for num, item in enumerate(paginas):
+                    
+                    if num != 0 and num != len(paginas) - 1:
+                        if num != 1:   
+                            item.click()
+                            time.sleep(1)
+                        clicar_links_tabela(driver)
+            else:
+                clicar_links_tabela(driver)        
         
-        else:
-            clicar_links_tabela(driver)              
+                      
             
         #Saindo do login para depois logar de novo
     time.sleep(5)
+    organizarPastas()
     sair = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[1]/div[1]/img[1]'))
         )
