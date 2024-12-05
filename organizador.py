@@ -22,11 +22,13 @@ def analisadorXmls(lista):
                 arquivos_xml.append(os.path.join(root, file))
     
     listaXMLS = [os.path.basename(caminho).replace('.xml', '') for caminho in arquivos_xml]
+
     # print('esses são os xml da pasta: ',listaXMLS[2:10])
     lista_sem_espacos = [item.strip() for item in lista]
 
     filtro = [item for item in lista_sem_espacos if item not in listaXMLS]
     print(f'Faltam apenas {len(filtro)} XML para serem baixados')
+
     
     return filtro
 
@@ -93,12 +95,16 @@ def organizarPastas():
                         print(f'{inscricao} movido para {destino}')
                     
                     else:
+
                         os.remove(origem)
                         print(f'{inscricao}: O XML já existe na pasta, arquivo removido com sucesso')
+
         
                 else:
                     print(f"Nome do arquivo inválido para conversão para mês: '{inscricao}'")
             else:
                 print(f"Tamanho insuficiente para extrair mês do arquivo: '{inscricao}'")
                 
+
 organizarPastas()
+
