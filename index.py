@@ -343,7 +343,7 @@ def comeca_consulta(driver, cfe):
         )
     cfekey.clear()
     time.sleep(0.2)
-    cfekey.send_keys(cfe)
+    cfekey.send_keys('1234567890101232')
     
     time.sleep(0.1)
     
@@ -364,9 +364,9 @@ def iniciarDownloads(driver):
     abas = driver.window_handles
 
     # Certifica-se de que há pelo menos 3 abas abertas
-    if len(abas) >= 3:
+    if len(abas) >= 2:
         # Troca para a terceira aba (última aberta)
-        driver.switch_to.window(abas[2])  # O índice 2 representa a terceira aba
+        driver.switch_to.window(abas[1])  # O índice 2 representa a terceira aba
     else:
         print("A terceira aba não foi encontrada.")
 
@@ -465,21 +465,32 @@ driver.implicitly_wait(10)
 try:
     for item in escricoes:
         
-        entrarDTE(driver,item)
-        time.sleep(5)
-        tratarCSV(downloads_directory, 'autorizados')
-        BaixarOsCancelados(driver)
-        time.sleep(5)
-        tratarCSV(downloads_directory, 'cancelados')
+        # entrarDTE(driver,item)
+        # time.sleep(5)
+        # tratarCSV(downloads_directory, 'autorizados')
+        # BaixarOsCancelados(driver)
+        # time.sleep(5)
+        # tratarCSV(downloads_directory, 'cancelados')
 
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         time.sleep(2)
+        autoit.send('{F11}')
+        time.sleep(1)
         realizar_login(driver)
         # teste = "69077339"
         iniciar_processo(driver, item)
+         # Captura as abas abertas no navegador
+        abas = driver.window_handles
+
+        # Certifica-se de que há pelo menos 3 abas abertas
+        if len(abas) >= 2:
+            # Troca para a terceira aba (última aberta)
+            driver.switch_to.window(abas[1])  # O índice 2 representa a terceira aba
+        else:
+            print("A terceira aba não foi encontrada.")
         # Aguarda o F2 e tenta localizar o elemento na nova aba
-        iniciarDownloads(driver)
+        # iniciarDownloads(driver)
         baixarCancelamento(driver)
         blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
         if blocos:
