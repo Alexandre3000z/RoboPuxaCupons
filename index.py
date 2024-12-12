@@ -456,7 +456,7 @@ def tratarCSV(directory, lista):
     
 def clicar_links_tabela(driver, index):
     try:
-        if(index % 50 == 0):
+        if(index % 50 == 0 and index != 0):
             # Limpar o cache usando DevTools Protocol
             driver.execute_cdp_cmd('Network.clearBrowserCache', {})
             driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
@@ -771,11 +771,11 @@ try:
         else:
             print('Empresa não localizada, indo para próxima empresa.')
         time.sleep(10)        #Saindo do login para depois logar de novo    
-        
+    print('Todos os cupons foram baixados, indo para a proxima empresa')    
     time.sleep(10)
 
 finally:
- 
+    print('Fechando navegador')
     # Feche o navegador após a execução
     driver.quit()
 
