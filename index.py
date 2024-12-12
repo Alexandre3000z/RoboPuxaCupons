@@ -1,4 +1,5 @@
 import time
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
@@ -37,7 +38,7 @@ listaCFEtotal = []
 listaEscricoesAS = []
 listaEscricoesDTE = []
 listaTotal = []
-
+#//*[@id="modalMensagem"]/div/div/div[1]/button/span
 nomedaempresa = ''
 # Diretório de downloads do usuário (substitua conforme necessário)
 downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
@@ -213,12 +214,9 @@ def entrarDTE(driver, numeroIncricao, indice):
     
 
     
-    if indice == 0:
-        print('Aguardar 20 segundos')
-        time.sleep(20)
-        autoit.send('{ENTER}')
     
     
+    time.sleep(1)
     # Guarda o identificador da janela original
     original_window = driver.current_window_handle
 
@@ -229,6 +227,7 @@ def entrarDTE(driver, numeroIncricao, indice):
     # Captura todos os identificadores de janelas abertas
     windows = driver.window_handles
 
+    
     # Muda para a nova janela e fecha a antiga
     for window in windows:
         if window != original_window:
@@ -241,17 +240,36 @@ def entrarDTE(driver, numeroIncricao, indice):
 
     # Retorna para a nova janela para continuar o processo
     driver.switch_to.window(window)
-   
+    if indice == 0:
+       time.sleep(10)
+       autoit.send('{ENTER}')
+       time.sleep(10)
+    for i in range(2):
+        try:
+            # Esperar o alerta aparecer
+            WebDriverWait(driver, 30).until(EC.alert_is_present())
+
+            # Alternar para o alerta e aceitá-lo
+            alert = Alert(driver)
+            alert.accept()
+            print("Alerta aceito e descartado.")
+            time.sleep(8)
+            
+        except Exception as e:
+            print(f"Nenhum alerta encontrado ou erro: {e}")
+            
+        
     NfeCfe = WebDriverWait(driver, 3000).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
     )
+   
     
-    time.sleep(10)
-    autoit.send('{ENTER}')
-    time.sleep(2)
-    autoit.send('{ENTER}')
-    time.sleep(1)
-              
+    time.sleep(20)
+    autoit.send('{ESC}')
+
+        
+    time.sleep(5)    
+                  
     NfeCfe.click()
     
     time.sleep(3)
@@ -436,9 +454,17 @@ def tratarCSV(directory, lista):
             
 
     
-def clicar_links_tabela(driver):
+def clicar_links_tabela(driver, index):
     try:
+        if(index % 50 == 0):
+            # Limpar o cache usando DevTools Protocol
+            driver.execute_cdp_cmd('Network.clearBrowserCache', {})
+            driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
 
+            # Atualizar a página
+            driver.refresh()
+            time.sleep(8)
+            
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
 
         # Itera sobre cada linha
@@ -543,15 +569,21 @@ def iniciar_processo(driver, inscricaoEstadual):
                 
 
 def comeca_consulta(driver, cfe):
+    time.sleep(0.5)
+    print('Começou o processo de clicar em consulta')
     # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+    
     fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
     # Agora encontre o link <a> dentro desse quarto <li>
     link = fourth_li.find_element(By.TAG_NAME, 'a')
     
-    
     link.click()
-    # time.sleep(0.5)
+    
+    print(fourth_li)
+    
+   
+    time.sleep(1)
     
     cfekey = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cfeKey"]'))
@@ -579,9 +611,9 @@ def iniciarDownloads(driver):
     abas = driver.window_handles
 
     # Certifica-se de que há pelo menos 3 abas abertas
-    if len(abas) >= 3:
+    if len(abas) >= 2:
         # Troca para a terceira aba (última aberta)
-        driver.switch_to.window(abas[2])  # O índice 2 representa a terceira aba
+        driver.switch_to.window(abas[1])  # O índice 2 representa a terceira aba
     else:
         print("A terceira aba não foi encontrada.")
 
@@ -592,7 +624,7 @@ def iniciarDownloads(driver):
         for index, cupom in enumerate (analisexml, start=1):
             comeca_consulta(driver,cupom)
             
-            clicar_links_tabela(driver)            
+            clicar_links_tabela(driver, index)            
             # Mostrar o progresso
             print(f"Baixando {index} de {len(analisexml)}")
             
@@ -669,9 +701,9 @@ def baixarCancelamento(driver):
                     if num != 1:   
                         item.click()
                         time.sleep(1)
-                    clicar_links_tabela(driver)
+                    clicar_links_tabela(driver,0)
         else:
-            clicar_links_tabela(driver)        
+            clicar_links_tabela(driver,0)        
     
                 
         
