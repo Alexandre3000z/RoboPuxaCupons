@@ -522,37 +522,37 @@ def iniciarDownloads(driver):
     else:
         print("A terceira aba não foi encontrada.")
 
-    actions = ActionChains(driver)
-    
-    try:
-        # print('esses são os xmls atuais',listaCFEtotal[2:10])
-        analisexml = analisadorXmls(listaCFEtotal)
-        for index, cupom in enumerate (analisexml, start=1):
-            # Lógica de atualização e limpeza de cache
-            if index % 50 == 0:  # A cada 50 itens
+    if(opcao != 7):
+        try:
+            # print('esses são os xmls atuais',listaCFEtotal[2:10])
+            analisexml = analisadorXmls(listaCFEtotal)
+            for index, cupom in enumerate (analisexml, start=1):
+                # Lógica de atualização e limpeza de cache
+                if index % 50 == 0:  # A cada 50 itens
+                    
+                    print("Limpando o cache e atualizando a página...")
+                    
+                    autoit.send("^+r")
+                    time.sleep(7)
+                    print("Página recarregada com cache limpo.")
+                    
+                # Continue com as operações normais no loop
+                time.sleep(0.1)  # Simulação de tempo entre iterações
+                comeca_consulta(driver,cupom)
                 
-                print("Limpando o cache e atualizando a página...")
+                clicar_links_tabela(driver)            
+                # Mostrar o progresso
+                print(f"Baixando {index} de {len(analisexml)}")
                 
-                autoit.send("^+r")
-                time.sleep(7)
-                print("Página recarregada com cache limpo.")
                 
-            # Continue com as operações normais no loop
-            time.sleep(0.1)  # Simulação de tempo entre iterações
-            comeca_consulta(driver,cupom)
-            
-            clicar_links_tabela(driver)            
-            # Mostrar o progresso
-            print(f"Baixando {index} de {len(analisexml)}")
-            
-            
-            # Aqui você coloca o processamento para cada item
-            # Por exemplo:
-            print(f"Processando: {cupom}")
-            
-    except Exception as e:
-        print(f"Erro ao encontrar o elemento: {e}")
-        return None
+                # Aqui você coloca o processamento para cada item
+                # Por exemplo:
+                print(f"Processando: {cupom}")
+                
+        except Exception as e:
+            print(f"Erro ao encontrar o elemento: {e}")
+            return None
+        
 def baixarCancelamento(driver):
     print('Iniciando download dos cancelamentos')
     time.sleep(3)
@@ -629,31 +629,32 @@ driver.implicitly_wait(10)
     
 try:
     for item in escricoes:
-        
-        autorizados = entrarDTE(driver,item)
-        time.sleep(5)
-        if opcao in (1, 2, 4, 5):
-            if(autorizados == True):
-                tratarCSV(downloads_directory, 'autorizados')
-            time.sleep(1.5)
-            apagarCSV(downloads_directory)
-            
-        cancelados = BaixarOsCancelados(driver)
-        time.sleep(5)
-        if opcao in (1, 2, 3, 6):
-            if(cancelados == True):
-                tratarCSV(downloads_directory, 'cancelados')
-            time.sleep(1.5)
-            apagarCSV(downloads_directory)
+        if(opcao != 7):
+            autorizados = entrarDTE(driver,item)
+            time.sleep(5)
+            if opcao in (1, 2, 4, 5):
+                if(autorizados == True):
+                    tratarCSV(downloads_directory, 'autorizados')
+                time.sleep(1.5)
+                apagarCSV(downloads_directory)
+                
+            cancelados = BaixarOsCancelados(driver)
+            time.sleep(5)
+            if opcao in (1, 2, 3, 6):
+                if(cancelados == True):
+                    tratarCSV(downloads_directory, 'cancelados')
+                time.sleep(1.5)
+                apagarCSV(downloads_directory)
 
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+        
         time.sleep(2)
         realizar_login(driver)
         # teste = "69077339"
         iniciar_processo(driver, item)
-        # Aguarda o F2 e tenta localizar o elemento na nova aba
         iniciarDownloads(driver)
+        
         if opcao in (1, 3, 4, 7):
             baixarCancelamento(driver)
             
