@@ -31,9 +31,31 @@ nome_mes_passado = calendar.month_name[mes_passado.month]
 
 # Solicita ao usuário para digitar uma string
 entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
-print(f'Serão emitidos todos os cupons de {nome_mes_passado}')
-entradaDataInicio = input("Com o modelo DD/MM/YYYY digite o periodo de inicio: ")
-entradaDataFinal = input("Agora digite o periodo final:")
+
+mes_desejado = int(input("Informe o mês (1-12): "))
+ano_desejado = int(input("Informe o ano (ex: 2024): "))
+
+def gerar_datas_mes(mes: int, ano: int):
+    """
+    Gera as datas de início e fim do mês fornecido.
+    :param mes: Mês desejado (1-12)
+    :param ano: Ano desejado (ex: 2024)
+    :return: variavel_inicio, variavel_final como strings no formato DD/MM/AAAA
+    """
+    # Primeiro dia do mês
+    primeiro_dia = f"01/{mes:02d}/{ano}"
+    
+    # Último dia do mês usando o módulo 'calendar'
+    ultimo_dia_numero = calendar.monthrange(ano, mes)[1]  # Retorna o último dia do mês
+    ultimo_dia = f"{ultimo_dia_numero:02d}/{mes:02d}/{ano}"
+    
+    return primeiro_dia, ultimo_dia
+
+variavel_inicio, variavel_final = gerar_datas_mes(mes_desejado, ano_desejado)
+
+
+
+
 
 
 escricoes =  entradaEscricao.split(", ")
@@ -568,14 +590,14 @@ def baixarCancelamento(driver):
             EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
         )
     time.sleep(0.2)
-    inicioperiodo.send_keys(entradaDataInicio)
+    inicioperiodo.send_keys(variavel_inicio)
     
     time.sleep(0.4)
     finalperiodo = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
         )
     time.sleep(0.2)
-    finalperiodo.send_keys(entradaDataFinal)
+    finalperiodo.send_keys(variavel_final)
     
     consulta = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
