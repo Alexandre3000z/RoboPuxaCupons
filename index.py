@@ -219,12 +219,6 @@ def entrarDTE(driver, numeroIncricao):
     #continuar o codigo aqui Alexandre
     
 def BaixarOsCancelados(driver):
-    x = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
-    ) 
-    x.click()                                    
-    time.sleep(2)
-    
     cancelados = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/app-root/div/app-nfce/div/div/section[2]/div/div/div/ul/li[2]/a'))
     ) 
@@ -233,7 +227,13 @@ def BaixarOsCancelados(driver):
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
     ) 
-    pesquisar.click()   
+    pesquisar.click()          
+    
+    #ESPERA O LOADING PARAR
+    WebDriverWait(driver, 50).until_not(
+    EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
+    )
+    print('loading sumiu')
            
     time.sleep(3)
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos_outros"]/table/tfoot/tr/td[3]')
