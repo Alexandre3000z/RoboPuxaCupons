@@ -183,25 +183,37 @@ def entrarDTE(driver, numeroIncricao):
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
     )
     print('loading sumiu')
+    tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div')
     
-    valor = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
-    )          
-    valor.click()
-    
-    time.sleep(5)
-    
-    download = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
-    )
+    if(tabelaValor.text != '0,00'):
+        valor = WebDriverWait(driver, 500).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
+        )          
+        valor.click()
 
-    time.sleep(2)          
-    download.click()
+        time.sleep(5)
+        
+        download = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
+        )
+
+        time.sleep(2)          
+        download.click()
     
-    csvDownload = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-    ) 
-    csvDownload.click()
+        csvDownload = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+        ) 
+        csvDownload.click()
+        time.sleep(3)
+        
+        x = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
+        ) 
+        x.click()                                    
+        time.sleep(2)
+        
+    else:
+        print('Essa empresa não tem cupons fiscais autorizados até o momento.')
     
     
     #continuar o codigo aqui Alexandre
