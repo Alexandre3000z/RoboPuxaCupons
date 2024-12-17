@@ -509,7 +509,8 @@ def comeca_consulta(driver, cfe):
     # time.sleep(1.5)
     
 
-  #PASSO 3 AMBIENTE SEGURO                     
+  #PASSO 3 AMBIENTE SEGURO            
+           
 def iniciarDownloads(driver):
     time.sleep(13)    
     # Captura as abas abertas no navegador
@@ -686,12 +687,37 @@ try:
         #Saindo do login para depois logar de novo
     time.sleep(5)
     organizarPastas()
-    sair = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[1]/div[1]/img[1]'))
-        )
-   
-    sair.click()
-    time.sleep(30)
+    
+    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+    # Agora encontre o link <a> dentro desse quarto <li>
+    link = fourth_li.find_element(By.TAG_NAME, 'a')
+    
+    
+    link.click()
+    
+    time.sleep(3)
+    
+    #SAINDO DO SISTEMA DE FORMA CORRETA
+    
+    sair2 = WebDriverWait(driver, 50).until(
+        EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+    )
+    
+    sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+    sair2Sim.click()
+    
+    time.sleep(3)
+    
+    sairConfirma = WebDriverWait(driver, 50).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+    )
+    
+    sairConfirma.click()
+    
+    
+    time.sleep(10)
 
 finally:
  
