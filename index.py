@@ -4,14 +4,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-
+from art import text2art, art
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc
-import keyboard  # Biblioteca para capturar teclas
 import autoit
 from selenium.common.exceptions import NoSuchElementException
+from colorama import init, Fore, Style
 import os
 import glob
 import pandas as pd
@@ -20,15 +20,43 @@ import calendar
 from login import SENHA, USUARIO
 from organizador import analisadorXmls, organizarPastas, apagarCSV
 
+
+# Efeito de digitação
+def type_animation(text, delay=0.004):
+    for line in text.split("\n"):
+        for char in line:
+            print(Fore.YELLOW + char, end="", flush=True)  # Mostra caractere por caractere
+            time.sleep(delay)
+        print()  # Nova linha
+        time.sleep(0.004)  # Pequeno delay entre linhas
+
+
+init(autoreset=True)
+
 # Data atual
 data_atual = datetime.now()
-
 # Subtrair um mês
 mes_passado = data_atual.replace(day=1) - timedelta(days=1)
-
 # Nome do mês passado
 nome_mes_passado = calendar.month_name[mes_passado.month]
 
+
+ascii_art = text2art("OFFICE", font="roman")
+# Remove linhas em branco
+# Remove linhas em branco internas
+linhas = [line for line in ascii_art.split("\n") if line.strip() != ""]# Adiciona um pequeno espaçamento acima e abaixo
+espacinho = 1  # Define o número de linhas vazias
+art_final = "\n" * espacinho + "\n".join(linhas) + "\n" * espacinho
+
+type_animation('=' * 100)
+type_animation(art_final)
+type_animation('=' * 100)
+print('\n')
+# Abre o arquivo de ASCII Art e exibe no terminal
+# with open('ascii-art.txt', 'r', encoding='utf-8') as file:
+#     ascii_art = file.read()
+
+# print(ascii_art)
 # Solicita ao usuário para digitar uma string
 entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
 
