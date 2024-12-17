@@ -2,6 +2,9 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support.ui import Select
@@ -42,6 +45,39 @@ nomedaempresa = ''
 downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
 print('Arquivos serão baixados em: ',downloads_directory)
 
+# Opções para o usuário
+print("\nEscolha uma das opções abaixo:")
+print("1- Tudo")
+print("2- Autorizados e Cancelados")
+print("3- Cancelados e Cancelamentos")
+print("4- Autorizados e Cancelamentos")
+print("5- Somente Autorizados")
+print("6- Somente Cancelados")
+print("7- Somente Cancelamentos")
+
+# Valida a escolha do usuário
+while True:
+    try:
+        opcao = int(input("\nDigite o número da opção desejada (1-7): "))
+        if opcao in range(1, 8):
+            break
+        else:
+            print("Opção inválida! Digite um número entre 1 e 7.")
+    except ValueError:
+        print("Entrada inválida! Digite apenas números entre 1 e 7.")
+
+# Confirmando a escolha do usuário
+opcoes_dict = {
+    1: "Tudo",
+    2: "Autorizados e Cancelados",
+    3: "Cancelados e Cancelamentos",
+    4: "Autorizados e Cancelamentos",
+    5: "Somente Autorizados",
+    6: "Somente Cancelados",
+    7: "Somente Cancelamentos"
+}
+
+print(f"\nVocê selecionou: {opcoes_dict[opcao]}")
 
 
 
@@ -233,6 +269,7 @@ def clicar_links_tabela(driver):
                 if len(linhas) > 1:
                     print(f'Baixando {indice} de {len(linhas)}')
                     print(f'Processando: {linha.text}')
+                
                 # Tenta encontrar o link 'a' na coluna específica
                 link = WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.XPATH, f'//*[@id="table-search-coupons"]/tbody/tr[{indice}]/td[4]/a'))
@@ -371,16 +408,34 @@ def iniciarDownloads(driver):
     else:
         print("A terceira aba não foi encontrada.")
 
-        
+    actions = ActionChains(driver)
+    
     try:
         # print('esses são os xmls atuais',listaCFEtotal[2:10])
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
+            # Lógica de atualização e limpeza de cache
+            if index % 50 == 0:  # A cada 50 itens
+                print("Limpando o cache e atualizando a página...")
+                
+                # Atalho para abrir DevTools (Ctrl + Shift + I)
+                actions.key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys("i").key_up(Keys.SHIFT).key_up(Keys.CONTROL).perform()
+                time.sleep(1)
+                
+                # Atalho para limpar cache (Ctrl + Shift + R para hard refresh no Chrome)
+                actions.key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys("r").key_up(Keys.SHIFT).key_up(Keys.CONTROL).perform()
+                time.sleep(3)  # Aguarda a atualização
+
+                print("Página recarregada com cache limpo.")
+            
+            # Continue com as operações normais no loop
+            time.sleep(8)  # Simulação de tempo entre iterações
             comeca_consulta(driver,cupom)
             
             clicar_links_tabela(driver)            
             # Mostrar o progresso
             print(f"Baixando {index} de {len(analisexml)}")
+            
             
             # Aqui você coloca o processamento para cada item
             # Por exemplo:
@@ -468,10 +523,12 @@ try:
         
         entrarDTE(driver,item)
         time.sleep(5)
-        tratarCSV(downloads_directory, 'autorizados')
+        if opcao in (1, 2, 4, 5):
+            tratarCSV(downloads_directory, 'autorizados')
         BaixarOsCancelados(driver)
         time.sleep(5)
-        tratarCSV(downloads_directory, 'cancelados')
+        if opcao in (1, 2, 3, 6):
+            tratarCSV(downloads_directory, 'cancelados')
 
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
@@ -481,7 +538,9 @@ try:
         iniciar_processo(driver, item)
         # Aguarda o F2 e tenta localizar o elemento na nova aba
         iniciarDownloads(driver)
-        baixarCancelamento(driver)
+        if opcao in (1, 3, 4, 7):
+            baixarCancelamento(driver)
+            
         blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
         if blocos:
             for index, item in enumerate(blocos):
