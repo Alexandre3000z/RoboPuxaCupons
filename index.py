@@ -211,10 +211,11 @@ def entrarDTE(driver, numeroIncricao):
         ) 
         x.click()                                    
         time.sleep(2)
-        
+        return True
+    
     else:
         print('Essa empresa não tem cupons fiscais autorizados até o momento.')
-    
+        return False
     
     #continuar o codigo aqui Alexandre
     
@@ -289,7 +290,10 @@ def BaixarOsCancelados(driver):
         
         time.sleep(2)
         
+        return True
+        
     else:
+        
         print('Essa empresa não tem cupons fiscais de cancelamento até o momento')
         perfil = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/a'))
@@ -320,6 +324,7 @@ def BaixarOsCancelados(driver):
         sairPefil.click()
         
         time.sleep(2)
+        return False
     
 def tratarCSV(directory, lista):
     # Obtém todos os arquivos CSV no diretório especificado
@@ -503,20 +508,15 @@ def iniciarDownloads(driver):
         for index, cupom in enumerate (analisexml, start=1):
             # Lógica de atualização e limpeza de cache
             if index % 50 == 0:  # A cada 50 itens
+                
                 print("Limpando o cache e atualizando a página...")
                 
-                # Atalho para abrir DevTools (Ctrl + Shift + I)
-                actions.key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys("i").key_up(Keys.SHIFT).key_up(Keys.CONTROL).perform()
-                time.sleep(1)
-                
-                # Atalho para limpar cache (Ctrl + Shift + R para hard refresh no Chrome)
-                actions.key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys("r").key_up(Keys.SHIFT).key_up(Keys.CONTROL).perform()
-                time.sleep(3)  # Aguarda a atualização
-
+                autoit.send("^+r")
+                time.sleep(7)
                 print("Página recarregada com cache limpo.")
-            
+                
             # Continue com as operações normais no loop
-            time.sleep(8)  # Simulação de tempo entre iterações
+            time.sleep(0.1)  # Simulação de tempo entre iterações
             comeca_consulta(driver,cupom)
             
             clicar_links_tabela(driver)            
@@ -608,17 +608,19 @@ driver.implicitly_wait(10)
 try:
     for item in escricoes:
         
-        entrarDTE(driver,item)
+        autorizados = entrarDTE(driver,item)
         time.sleep(5)
         if opcao in (1, 2, 4, 5):
-            tratarCSV(downloads_directory, 'autorizados')
+            if(autorizados == True):
+                tratarCSV(downloads_directory, 'autorizados')
             time.sleep(1.5)
             apagarCSV(downloads_directory)
             
-        BaixarOsCancelados(driver)
+        cancelados = BaixarOsCancelados(driver)
         time.sleep(5)
         if opcao in (1, 2, 3, 6):
-            tratarCSV(downloads_directory, 'cancelados')
+            if(cancelados == True):
+                tratarCSV(downloads_directory, 'cancelados')
             time.sleep(1.5)
             apagarCSV(downloads_directory)
 
