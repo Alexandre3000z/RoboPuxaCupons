@@ -18,7 +18,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 from login import SENHA, USUARIO
-from organizador import analisadorXmls, organizarPastas
+from organizador import analisadorXmls, organizarPastas, apagarCSV
 
 # Data atual
 data_atual = datetime.now()
@@ -236,27 +236,90 @@ def BaixarOsCancelados(driver):
     pesquisar.click()   
            
     time.sleep(3)
-    #ESPERA O LOADING PARAR
-    WebDriverWait(driver, 100).until_not(
-    EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
-    )
-    print('loading sumiu')
-    
-    mes = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
-    )
-    time.sleep(2)
-    mes.click()  
-    time.sleep(2)
-    download = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
-    ) 
-    download.click()  
-    time.sleep(2)
-    csv = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-    ) 
-    csv.click()  
+    tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos_outros"]/table/tfoot/tr/td[3]')
+    if(tabelaValor.text != '0,00'):
+
+        mes = WebDriverWait(driver, 5000).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
+        ) 
+        mes.click()  
+        
+        download = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
+        ) 
+        download.click()  
+        
+        csv = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
+        ) 
+        csv.click()
+        time.sleep(2)
+        
+        x = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[1]/button'))
+        ) 
+        x.click()
+        time.sleep(2)
+        
+        perfilA = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/a'))
+        ) 
+        perfilA.click()
+        time.sleep(2)
+        
+        sairA = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/ul/li[2]/div/a'))
+        ) 
+        sairA.click()
+        time.sleep(2)
+        
+        driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+        
+        time.sleep(2)
+        
+        perfildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+        )       
+        perfildte.click()
+        time.sleep(3)
+        sairPefildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+        )       
+        sairPefildte.click()
+        
+        time.sleep(2)
+        
+    else:
+        print('Essa empresa não tem cupons fiscais de cancelamento até o momento')
+        perfil = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/a'))
+        ) 
+        perfil.click()
+        
+        time.sleep(1)
+        
+        sair = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/ul/li[2]/div/a'))
+        ) 
+        sair.click()
+        
+        time.sleep(3)
+        
+        driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+        
+        time.sleep(2)
+        
+        perfil = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+        )       
+        perfil.click()
+        
+        sairPefil = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+        )       
+        sairPefil.click()
+        
+        time.sleep(2)
     
 def tratarCSV(directory, lista):
     # Obtém todos os arquivos CSV no diretório especificado
@@ -549,10 +612,15 @@ try:
         time.sleep(5)
         if opcao in (1, 2, 4, 5):
             tratarCSV(downloads_directory, 'autorizados')
+            time.sleep(1.5)
+            apagarCSV(downloads_directory)
+            
         BaixarOsCancelados(driver)
         time.sleep(5)
         if opcao in (1, 2, 3, 6):
             tratarCSV(downloads_directory, 'cancelados')
+            time.sleep(1.5)
+            apagarCSV(downloads_directory)
 
         # Abra a página desejada
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")

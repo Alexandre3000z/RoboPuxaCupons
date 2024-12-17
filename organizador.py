@@ -2,6 +2,8 @@ import os
 import locale
 from datetime import datetime
 import shutil
+import os
+import glob
 
 def analisadorXmls(lista):
     # Tenta definir o locale para português do Brasil
@@ -30,7 +32,12 @@ def analisadorXmls(lista):
     
     return filtro
 
-
+def apagarCSV(pasta):
+    # Apaga todos os arquivos CSV na pasta
+    for arquivo in glob.glob(os.path.join(pasta, "*.csv")):
+        os.remove(arquivo)
+        print(f"Arquivo apagado: {arquivo}")
+        
 def organizarPastas():
     # Tenta definir o locale para português do Brasil
     try:
