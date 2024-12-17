@@ -177,7 +177,12 @@ def entrarDTE(driver, numeroIncricao):
     )          
     pesquisar.click()
     
-    time.sleep(20)
+    time.sleep(3)
+    #ESPERA O LOADING PARAR
+    WebDriverWait(driver, 100).until_not(
+    EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
+    )
+    print('loading sumiu')
     
     valor = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
@@ -216,7 +221,14 @@ def BaixarOsCancelados(driver):
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
     ) 
-    pesquisar.click()          
+    pesquisar.click()   
+           
+    time.sleep(3)
+    #ESPERA O LOADING PARAR
+    WebDriverWait(driver, 100).until_not(
+    EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
+    )
+    print('loading sumiu')
     
     mes = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
