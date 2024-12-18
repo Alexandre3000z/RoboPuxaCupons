@@ -749,7 +749,7 @@ try:
             print(f'Incrição estadual: {inscricao}')
             time.sleep(5)
             if opcao in (1, 2, 4, 5):
-                if(autorizados == True):
+                if(autorizados[0] == True):
                     tratarCSV(downloads_directory, 'autorizados')
                 time.sleep(1.5)
                 apagarCSV(downloads_directory)
@@ -757,7 +757,7 @@ try:
             cancelados = BaixarOsCancelados(driver)
             time.sleep(5)
             if opcao in (1, 2, 3, 6):
-                if(cancelados == True):
+                if(cancelados[0] == True):
                     tratarCSV(downloads_directory, 'cancelados')
                 time.sleep(1.5)
                 apagarCSV(downloads_directory)

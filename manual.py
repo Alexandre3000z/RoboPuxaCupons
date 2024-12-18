@@ -42,7 +42,7 @@ def processo1_Dte(driver):
     siget.click()
     
     
-    time.sleep(12)
+    time.sleep(16)
     autoit.send('{ENTER}')
     time.sleep(5)
     autoit.send('{ENTER}')
@@ -77,7 +77,7 @@ def processo1_Dte(driver):
     )          
     pesquisar.click()
     
-    time.sleep(3)
+    time.sleep(35)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 100).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
@@ -86,13 +86,15 @@ def processo1_Dte(driver):
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div')
     
     if(tabelaValor.text != '0,00'):
+        
         valor = WebDriverWait(driver, 500).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
         )          
         valor.click()
 
         time.sleep(5)
-        
+        time.sleep(40)
+
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
         )
