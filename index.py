@@ -580,13 +580,10 @@ def iniciarDownloads(driver):
                     
                     print("Limpando o cache e atualizando a página...")
                     
-                    # Limpa o cache
-                    driver.delete_all_cookies()
-
-                    # Atualiza a página (forçando o cache a ser ignorado)
-                    ActionChains(driver).key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys('r').perform()
-                    time.sleep(7)  # Aguarda o navegador processar a atualização
-
+                    autoit.send("^+r")
+                    time.sleep(3)
+                    driver.refresh()
+                    time.sleep(7)
                     print("Página recarregada com cache limpo.")
                     
                 # Continue com as operações normais no loop
@@ -667,8 +664,14 @@ def baixarCancelamento(driver):
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
 
-# Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
-options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
+# Obtém o caminho para a pasta do usuário
+user_data_dir = os.path.join(
+    os.path.expanduser("~"), 
+    "AppData", "Local", "Google", "Chrome", "User Data"
+)
+
+# Adiciona o argumento ao Selenium
+options.add_argument(f"--user-data-dir={user_data_dir}")
 options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
 # Configurações para evitar bloqueios
@@ -681,7 +684,9 @@ options.add_argument("--ignore-certificate-errors")
 # Inicia o navegador
 driver = uc.Chrome(service=service, options=options)
 driver.implicitly_wait(10)
-
+time.sleep(2)
+autoit.send('{F11}')
+time.sleep(2)
 
     
 try:
