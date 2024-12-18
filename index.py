@@ -34,7 +34,7 @@ def type_animation(text, delay=0.004):
 init(autoreset=True)
 
 
-ascii_art = text2art("OFFICE", font="roman")
+ascii_art = text2art("BUSINESS", font="roman")
 # Remove linhas em branco
 # Remove linhas em branco internas
 linhas = [line for line in ascii_art.split("\n") if line.strip() != ""]# Adiciona um pequeno espaçamento acima e abaixo
