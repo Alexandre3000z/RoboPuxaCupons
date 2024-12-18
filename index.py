@@ -10,15 +10,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc
 import autoit
-from selenium.common.exceptions import NoSuchElementException
 from colorama import init, Fore, Style
 import os
 import glob
 import pandas as pd
-from datetime import datetime, timedelta
 import calendar
 from login import SENHA, USUARIO
 from organizador import analisadorXmls, organizarPastas, apagarCSV
+from manual import processo1_Dte
+import keyboard
 
 
 # Efeito de digitação
@@ -33,13 +33,6 @@ def type_animation(text, delay=0.004):
 
 init(autoreset=True)
 
-# Data atual
-data_atual = datetime.now()
-# Subtrair um mês
-mes_passado = data_atual.replace(day=1) - timedelta(days=1)
-# Nome do mês passado
-nome_mes_passado = calendar.month_name[mes_passado.month]
-
 
 ascii_art = text2art("OFFICE", font="roman")
 # Remove linhas em branco
@@ -52,16 +45,37 @@ type_animation('=' * 100)
 type_animation(art_final)
 type_animation('=' * 100)
 print('\n')
-# Abre o arquivo de ASCII Art e exibe no terminal
-# with open('ascii-art.txt', 'r', encoding='utf-8') as file:
-#     ascii_art = file.read()
 
-# print(ascii_art)
-# Solicita ao usuário para digitar uma string
-entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
 
-mes_desejado = int(input("Informe o mês (1-12): "))
-ano_desejado = int(input("Informe o ano (ex: 2024): "))
+
+
+
+# Opções para o usuário
+print("Escolha uma das opções abaixo:")
+print('\n')
+print("1- Processo Automatico (Com procuração)")
+print("2- Processo Manual (Sem procuração)")
+
+
+# Valida a escolha do usuário
+while True:
+    try:
+        opcaoInicial = int(input("\nDigite o número da opção desejada (1-2): "))
+        if opcaoInicial in range(1, 3):
+            break
+        else:
+            print("Opção inválida! Digite um número entre 1 e 2.")
+    except ValueError:
+        print("Entrada inválida! Digite apenas números entre 1 e 2.")
+
+
+
+if opcaoInicial == 1:
+    entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
+    escricoes =  entradaEscricao.split(", ")
+
+
+
 
 def gerar_datas_mes(mes: int, ano: int):
     """
@@ -79,14 +93,13 @@ def gerar_datas_mes(mes: int, ano: int):
     
     return primeiro_dia, ultimo_dia
 
+
+mes_desejado = int(input("Informe o mês (1-12): "))
+ano_desejado = int(input("Informe o ano (ex: 2024): "))
 variavel_inicio, variavel_final = gerar_datas_mes(mes_desejado, ano_desejado)
 
 
 
-
-
-
-escricoes =  entradaEscricao.split(", ")
 
 listaCFEtotal = []
 
@@ -94,6 +107,8 @@ nomedaempresa = ''
 # Diretório de downloads do usuário (substitua conforme necessário)
 downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
 print('Arquivos serão baixados em: ',downloads_directory)
+
+
 
 # Opções para o usuário
 print("\nEscolha uma das opções abaixo:")
@@ -565,8 +580,13 @@ def iniciarDownloads(driver):
                     
                     print("Limpando o cache e atualizando a página...")
                     
-                    autoit.send("^+r")
-                    time.sleep(7)
+                    # Limpa o cache
+                    driver.delete_all_cookies()
+
+                    # Atualiza a página (forçando o cache a ser ignorado)
+                    ActionChains(driver).key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys('r').perform()
+                    time.sleep(7)  # Aguarda o navegador processar a atualização
+
                     print("Página recarregada com cache limpo.")
                     
                 # Continue com as operações normais no loop
@@ -639,6 +659,10 @@ def baixarCancelamento(driver):
     
     time.sleep(5)
     
+    
+#O CÓDIGO COMEÇA A SER EXECUTADO AQUI    
+    
+    
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
 options = uc.ChromeOptions()
@@ -661,9 +685,63 @@ driver.implicitly_wait(10)
 
     
 try:
-    for item in escricoes:
+    if(opcaoInicial == 1):
+        for item in escricoes:
+            if(opcao != 7):
+                autorizados = entrarDTE(driver,item)
+                time.sleep(5)
+                if opcao in (1, 2, 4, 5):
+                    if(autorizados == True):
+                        tratarCSV(downloads_directory, 'autorizados')
+                    time.sleep(1.5)
+                    apagarCSV(downloads_directory)
+                    
+                cancelados = BaixarOsCancelados(driver)
+                time.sleep(5)
+                if opcao in (1, 2, 3, 6):
+                    if(cancelados == True):
+                        tratarCSV(downloads_directory, 'cancelados')
+                    time.sleep(1.5)
+                    apagarCSV(downloads_directory)
+
+            # Abra a página desejada
+            driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+            
+            time.sleep(2)
+            realizar_login(driver)
+            # teste = "69077339"
+            iniciar_processo(driver, item)
+            iniciarDownloads(driver)
+            
+            if opcao in (1, 3, 4, 7):
+                baixarCancelamento(driver)
+                
+            blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
+            if blocos:
+                for index, item in enumerate(blocos):
+                    if index == len(blocos) - 1:
+                        item.click()
+                        time.sleep(5)            
+                #testarrrrrr
+                paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
+                if paginas:
+                    for num, item in enumerate(paginas):
+                        
+                        if num != 0 and num != len(paginas) - 1:
+                            if num != 1:   
+                                item.click()
+                                time.sleep(1)
+                            clicar_links_tabela(driver)
+                else:
+                    clicar_links_tabela(driver)        
+        
+    #ENTRANDO NO MODO MANUAL 
+    else:
         if(opcao != 7):
-            autorizados = entrarDTE(driver,item)
+            
+            autorizados = processo1_Dte(driver)
+            inscricao = autorizados[1]
+            print(f'Incrição estadual: {inscricao}')
             time.sleep(5)
             if opcao in (1, 2, 4, 5):
                 if(autorizados == True):
@@ -683,9 +761,12 @@ try:
         driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
         
         time.sleep(2)
-        realizar_login(driver)
+        
+        print("Entre no Ambiente Seguro com seu Login ou certificado e após isso pressione F2")
+        keyboard.wait("f2")
+        print("F2 pressionado, continuando o processo...")
         # teste = "69077339"
-        iniciar_processo(driver, item)
+        iniciar_processo(driver, inscricao)
         iniciarDownloads(driver)
         
         if opcao in (1, 3, 4, 7):
@@ -708,8 +789,7 @@ try:
                             time.sleep(1)
                         clicar_links_tabela(driver)
             else:
-                clicar_links_tabela(driver)        
-        
+                clicar_links_tabela(driver)    
                       
             
         #Saindo do login para depois logar de novo
