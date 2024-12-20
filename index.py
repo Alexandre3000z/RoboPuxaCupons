@@ -274,10 +274,43 @@ def entrarDTE(driver, numeroIncricao, indice):
     
     time.sleep(3)
     
-    pesquisar = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-    )          
-    pesquisar.click()
+    
+    
+    try:
+        # Aguarda até que o elemento carregue (com timeout de 15 segundos)
+        element = WebDriverWait(driver, 40).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+        )
+        element.click()
+    except:
+        # Se o elemento não carregar, recarrega a página
+        print("Carregamento infinito detectado, recarregando a página...")
+        driver.refresh()
+        for i in range(2):
+            try:
+                # Esperar o alerta aparecer
+                WebDriverWait(driver, 30).until(EC.alert_is_present())
+
+                # Alternar para o alerta e aceitá-lo
+                alert = Alert(driver)
+                alert.accept()
+                print("Alerta aceito e descartado.")
+                time.sleep(8)
+                
+            except Exception as e:
+                print(f"Nenhum alerta encontrado ou erro: {e}")
+                
+                
+        time.sleep(3)  # Aguarda a página carregar
+        # Tente clicar novamente após atualizar
+        element = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+        )
+        element.click()
+    # pesquisar = WebDriverWait(driver, 30).until(
+    # EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+    # )          
+    # pesquisar.click()
     
     time.sleep(3)
     #ESPERA O LOADING PARAR
@@ -709,13 +742,25 @@ def baixarCancelamento(driver):
                 
         
         #Saindo do login para depois logar de novo
-    time.sleep(5)
-    organizarPastas()
-    sair = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[1]/div[1]/img[1]'))
-        )
-
-    sair.click()
+    time.sleep(3)
+    
+    #SAINDO DO SISTEMA DE FORMA CORRETA
+    
+    sair2 = WebDriverWait(driver, 50).until(
+        EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+    )
+    
+    sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+    sair2Sim.click()
+    
+    time.sleep(3)
+    
+    sairConfirma = WebDriverWait(driver, 50).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+    )
+    
+    sairConfirma.click() 
+    
     time.sleep(5)
     
 # Configuração do Chrome
@@ -773,6 +818,8 @@ try:
             print('Empresa não localizada, indo para próxima empresa.')
         time.sleep(10)        #Saindo do login para depois logar de novo    
     print('Todos os cupons foram baixados, indo para a proxima empresa')    
+    
+    
     time.sleep(10)
 
 finally:
