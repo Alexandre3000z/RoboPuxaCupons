@@ -612,10 +612,11 @@ def iniciarDownloads(driver):
 
     # Certifica-se de que há pelo menos 3 abas abertas
     if len(abas) >= 2:
-        # Troca para a terceira aba (última aberta)
-        driver.switch_to.window(abas[1])  # O índice 2 representa a terceira aba
+        driver.close()
+
+        driver.switch_to.window(abas[1])  
     else:
-        print("A terceira aba não foi encontrada.")
+        print("A segunda aba não foi encontrada.")
 
         
     try:
