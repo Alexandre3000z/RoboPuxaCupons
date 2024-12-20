@@ -739,9 +739,6 @@ def baixarCancelamento(driver):
         else:
             clicar_links_tabela(driver,0)        
     
-                
-        
-        #Saindo do login para depois logar de novo
     time.sleep(3)
     
     #SAINDO DO SISTEMA DE FORMA CORRETA
@@ -761,7 +758,10 @@ def baixarCancelamento(driver):
     
     sairConfirma.click() 
     
-    time.sleep(5)
+    time.sleep(5)            
+        
+        #Saindo do login para depois logar de novo
+   
     
 # Configuração do Chrome
 service = Service(ChromeDriverManager().install())
