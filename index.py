@@ -172,10 +172,27 @@ def entrarDTE(driver, numeroIncricao):
     selecaoC.click()
 
     time.sleep(3)
-    ativo = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
-    )        
-    ativo.click()
+    
+    try:
+        ativo = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+        )        
+        ativo.click()
+    except:
+        print('Carregamento infinito detectado, corrigindo...')
+        driver.refresh()
+        time.sleep(3)
+        selecaoC = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
+        )
+        selecaoC.click()
+        time.sleep(3)
+        ativo = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+        )        
+        ativo.click()
+                
+    
 
     time.sleep(1)
 
