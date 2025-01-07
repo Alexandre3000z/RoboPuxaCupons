@@ -2,11 +2,13 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
+
 import autoit
 import keyboard
 import re
 
-def processo1_Dte(driver):
+def processo1_Dte(driver, mes_desejado, ano_desejado ):
     
     time.sleep(1)
     
@@ -72,6 +74,17 @@ def processo1_Dte(driver):
     
     time.sleep(3)
     
+    #SELECIONAR MES E ANO
+    selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
+    optionMes = Select(selectMes)
+    optionMes.select_by_index(mes_desejado - 1)
+    
+    selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
+    optionAno = Select(selectAno)
+    optionAno.select_by_value(f'{ano_desejado}')
+    
+    
+    time.sleep(2)
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
     )          

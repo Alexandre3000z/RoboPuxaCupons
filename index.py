@@ -304,8 +304,21 @@ def BaixarOsCancelados(driver):
     cancelados = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/app-root/div/app-nfce/div/div/section[2]/div/div/div/ul/li[2]/a'))
     ) 
-    cancelados.click()          
+    cancelados.click()
     
+    time.sleep(7)
+             
+    #SELECIONAR MES E ANO
+    selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
+    optionMes = Select(selectMes)
+    optionMes.select_by_index(mes_desejado - 1)
+    
+    selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
+    optionAno = Select(selectAno)
+    optionAno.select_by_value(f'{ano_desejado}')
+    
+    
+    time.sleep(2)
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
     ) 
