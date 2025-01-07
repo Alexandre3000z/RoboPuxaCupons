@@ -237,6 +237,22 @@ def entrarDTE(driver, numeroIncricao):
     
     time.sleep(3)
     
+   
+    time.sleep(5)
+    
+    #SELECIONAR MES E ANO
+    selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
+    optionMes = Select(selectMes)
+    optionMes.select_by_index(mes_desejado - 1)
+    
+    selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
+    optionAno = Select(selectAno)
+    optionAno.select_by_value(f'{ano_desejado}')
+    
+    
+    time.sleep(2)
+    
+    
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
     )          
