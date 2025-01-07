@@ -773,7 +773,7 @@ try:
                     if index == len(blocos) - 1:
                         item.click()
                         time.sleep(5)            
-                #testarrrrrr
+
                 paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
                 if paginas:
                     for num, item in enumerate(paginas):
