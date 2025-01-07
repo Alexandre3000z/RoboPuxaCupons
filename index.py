@@ -257,7 +257,20 @@ def entrarDTE(driver, numeroIncricao, indice):
             
         except Exception as e:
             print(f"Nenhum alerta encontrado ou erro: {e}")
-            
+    
+    
+    try:
+        # Aguarda até que o elemento carregue (com timeout de 15 segundos)
+        painelErro = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="modalMensagem"]/div/div/div[2]/div/div[2]/div/div/label'))
+        )
+        print('Tela de erro detectada, fechando...')
+        time.sleep(1)
+        painelErro.click()
+    except:
+        # Se o elemento não carregar
+        print("Não foi encontrado nenhuma tela de erro, continuando processo...")
+                
         
     NfeCfe = WebDriverWait(driver, 3000).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
@@ -333,12 +346,13 @@ def entrarDTE(driver, numeroIncricao, indice):
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
         )
 
-        time.sleep(2)          
+        time.sleep(5)          
         download.click()
     
         csvDownload = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-        ) 
+        )
+        time.sleep(5) 
         csvDownload.click()
         time.sleep(3)
         
@@ -380,17 +394,21 @@ def BaixarOsCancelados(driver):
 
         mes = WebDriverWait(driver, 5000).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
-        ) 
+        )
+        time.sleep(5) 
+ 
         mes.click()  
         
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
-        ) 
+        )
+        time.sleep(5)  
         download.click()  
         
         csv = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-        ) 
+        )
+        time.sleep(5)  
         csv.click()
         time.sleep(2)
         
