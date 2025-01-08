@@ -350,7 +350,7 @@ def BaixarOsCancelados(driver):
     )
     print('loading sumiu')
            
-    time.sleep(3)
+    time.sleep(10)
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos_outros"]/table/tfoot/tr/td[3]')
     if(tabelaValor.text != '0,00'):
 
@@ -358,17 +358,17 @@ def BaixarOsCancelados(driver):
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
         ) 
         mes.click()  
-        
+        time.sleep(6)
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
         ) 
         download.click()  
-        
+        time.sleep(6)
         csv = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
         ) 
         csv.click()
-        time.sleep(2)
+        time.sleep(4)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[1]/button'))
