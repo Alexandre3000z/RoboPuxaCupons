@@ -275,7 +275,7 @@ def entrarDTE(driver, numeroIncricao):
     )          
     pesquisar.click()
     
-    time.sleep(3)
+    time.sleep(15)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 100).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
@@ -339,8 +339,9 @@ def BaixarOsCancelados(driver):
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
     ) 
-    pesquisar.click()          
-    
+    pesquisar.click()  
+            
+    time.sleep(15)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 50).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))

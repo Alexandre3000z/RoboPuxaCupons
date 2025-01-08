@@ -90,7 +90,7 @@ def processo1_Dte(driver, mes_desejado, ano_desejado ):
     )          
     pesquisar.click()
     
-    time.sleep(35)
+    time.sleep(30)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 100).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
