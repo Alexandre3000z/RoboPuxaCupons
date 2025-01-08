@@ -500,10 +500,14 @@ def clicar_links_tabela(driver):
                 )
 
             except Exception as e:
+                driver.refresh()
+                time.sleep(7)
                 print(f"Erro ao processar linha {indice}: {e}")
                 continue
 
     except Exception as e:
+        driver.refresh()
+        time.sleep(7)
         print(f"Erro ao processar tabela: {e}")
         
    #PASSO 1 AMBIENTE SEGURO     
