@@ -654,32 +654,48 @@ def iniciarDownloads(driver):
             # print('esses são os xmls atuais',listaCFEtotal[2:10])
             analisexml = analisadorXmls(listaCFEtotal)
             for index, cupom in enumerate (analisexml, start=1):
-                # Lógica de atualização e limpeza de cache
-                if index % 50 == 0:  # A cada 50 itens
+                try:
+                    # Lógica de atualização e limpeza de cache
+                    if index % 50 == 0:  # A cada 50 itens
+                        
+                        print("Limpando o cache e atualizando a página...")
+                        
+                        autoit.send("^+r")
+                        time.sleep(3)
+                        driver.refresh()
+                        time.sleep(7)
+                        print("Página recarregada com cache limpo.")
+                        
+                    # Continue com as operações normais no loop
+                    time.sleep(0.1)  # Simulação de tempo entre iterações
+                    comeca_consulta(driver,cupom)
                     
-                    print("Limpando o cache e atualizando a página...")
+                    clicar_links_tabela(driver)            
+                    # Mostrar o progresso
+                    print(f"Baixando {index} de {len(analisexml)}")
                     
-                    autoit.send("^+r")
-                    time.sleep(3)
+                    
+                    # Aqui você coloca o processamento para cada item
+                    # Por exemplo:
+                    print(f"Processando: {cupom}")
+                except Exception as e:
+                    print(f"O {index} foi interrompido, tentando corrigir problema.")
                     driver.refresh()
-                    time.sleep(7)
-                    print("Página recarregada com cache limpo.")
+                    time.sleep(15)  # Simulação de tempo entre iterações
+                    comeca_consulta(driver,cupom)
                     
-                # Continue com as operações normais no loop
-                time.sleep(0.1)  # Simulação de tempo entre iterações
-                comeca_consulta(driver,cupom)
-                
-                clicar_links_tabela(driver)            
-                # Mostrar o progresso
-                print(f"Baixando {index} de {len(analisexml)}")
-                
-                
-                # Aqui você coloca o processamento para cada item
-                # Por exemplo:
-                print(f"Processando: {cupom}")
+                    clicar_links_tabela(driver)            
+                    # Mostrar o progresso
+                    
+                    
+                    # Aqui você coloca o processamento para cada item
+                    # Por exemplo:
+                    print(f"Processando: {cupom}")
+                        
                 
         except Exception as e:
             print(f"Erro de carregamento infinito, o ambiente seguro está instável")
+            
             return None
         
 def baixarCancelamento(driver):
