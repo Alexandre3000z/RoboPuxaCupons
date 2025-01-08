@@ -569,29 +569,34 @@ def iniciar_processo(driver, inscricaoEstadual):
                     break
         
         except:
-            driver.refresh()
-            
-            # Aguarde a tabela carregar
-            WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
-            )
+            try:
+                print('Erro de carregamento, limpando pagina e tentando novamente.')
+                driver.refresh()
+                time.sleep(5)
+                # Aguarde a tabela carregar
+                WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+                )
 
-            #Lista das linhas
-            linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
-            # print(linhas)
-            
-            for linha in linhas:
-                celula = linha.find_element(By.XPATH, './td[1]')
-                celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
-                textoNome = celulaNome.text
-                texto_da_celula = celula.text
-                inscricaoEstadual = inscricaoEstadual.lstrip('0')
-
-                if(texto_da_celula == inscricaoEstadual):
-                    celula.click()
-                    print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
-                    break    
+                #Lista das linhas
+                linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
+                # print(linhas)
                 
+                for linha in linhas:
+                    celula = linha.find_element(By.XPATH, './td[1]')
+                    celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
+                    textoNome = celulaNome.text
+                    texto_da_celula = celula.text
+                    inscricaoEstadual = inscricaoEstadual.lstrip('0')
+
+                    if(texto_da_celula == inscricaoEstadual):
+                        celula.click()
+                        print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
+                        break    
+            except:
+                print('O ambiente seguro está passando por instabilidade, tentar novamente mais tarde')
+                
+                    
 
 def comeca_consulta(driver, cfe):
     # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
