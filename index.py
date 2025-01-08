@@ -647,7 +647,7 @@ def iniciarDownloads(driver):
                 print(f"Processando: {cupom}")
                 
         except Exception as e:
-            print(f"Erro ao encontrar o elemento: {e}")
+            print(f"Erro ao encontrar o cupom no ambiente seguro")
             return None
         
 def baixarCancelamento(driver):
