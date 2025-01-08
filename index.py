@@ -546,27 +546,51 @@ def iniciar_processo(driver, inscricaoEstadual):
         )
         acessarMFE.click()
         
-        # Aguarde a tabela carregar
-        WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
-        )
+        try:
+            # Aguarde a tabela carregar
+            WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+            )
 
-        #Lista das linhas
-        linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
-        # print(linhas)
-        
-        for linha in linhas:
-            celula = linha.find_element(By.XPATH, './td[1]')
-            celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
-            textoNome = celulaNome.text
-            texto_da_celula = celula.text
-            inscricaoEstadual = inscricaoEstadual.lstrip('0')
-
-            if(texto_da_celula == inscricaoEstadual):
-                celula.click()
-                print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
-                break
+            #Lista das linhas
+            linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
+            # print(linhas)
             
+            for linha in linhas:
+                celula = linha.find_element(By.XPATH, './td[1]')
+                celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
+                textoNome = celulaNome.text
+                texto_da_celula = celula.text
+                inscricaoEstadual = inscricaoEstadual.lstrip('0')
+
+                if(texto_da_celula == inscricaoEstadual):
+                    celula.click()
+                    print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
+                    break
+        
+        except:
+            driver.refresh()
+            
+            # Aguarde a tabela carregar
+            WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+            )
+
+            #Lista das linhas
+            linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
+            # print(linhas)
+            
+            for linha in linhas:
+                celula = linha.find_element(By.XPATH, './td[1]')
+                celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
+                textoNome = celulaNome.text
+                texto_da_celula = celula.text
+                inscricaoEstadual = inscricaoEstadual.lstrip('0')
+
+                if(texto_da_celula == inscricaoEstadual):
+                    celula.click()
+                    print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
+                    break    
                 
 
 def comeca_consulta(driver, cfe):
@@ -647,62 +671,65 @@ def iniciarDownloads(driver):
                 print(f"Processando: {cupom}")
                 
         except Exception as e:
-            print(f"Erro ao encontrar o cupom no ambiente seguro")
+            print(f"Erro de carregamento infinito, o ambiente seguro está instável")
             return None
         
 def baixarCancelamento(driver):
-    print('Iniciando download dos cancelamentos')
-    time.sleep(3)
-    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
-    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+    try:
+        print('Iniciando download dos cancelamentos')
+        time.sleep(3)
+        # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+        fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
-    # Agora encontre o link <a> dentro desse quarto <li>
-    link = fourth_li.find_element(By.TAG_NAME, 'a')
-    
-    
-    link.click()
-    
-    time.sleep(2)
-    
-    limpar = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
-        )
-    limpar.click()
-    
-    tipo = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
-        )
-    tipo.click()
-    
-    time.sleep(0.5)
-    
-    autoit.send('{DOWN}')
-    
-    time.sleep(0.4)
-    
-    autoit.send('{ENTER}')
-    
-    time.sleep(0.4)
-    inicioperiodo = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
-        )
-    time.sleep(0.2)
-    inicioperiodo.send_keys(variavel_inicio)
-    
-    time.sleep(0.4)
-    finalperiodo = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
-        )
-    time.sleep(0.2)
-    finalperiodo.send_keys(variavel_final)
-    
-    consulta = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
-        )
-    consulta.click()
-    
-    time.sleep(5)
-    
+        # Agora encontre o link <a> dentro desse quarto <li>
+        link = fourth_li.find_element(By.TAG_NAME, 'a')
+        
+        
+        link.click()
+        
+        time.sleep(2)
+        
+        limpar = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
+            )
+        limpar.click()
+        
+        tipo = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
+            )
+        tipo.click()
+        
+        time.sleep(0.5)
+        
+        autoit.send('{DOWN}')
+        
+        time.sleep(0.4)
+        
+        autoit.send('{ENTER}')
+        
+        time.sleep(0.4)
+        inicioperiodo = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
+            )
+        time.sleep(0.2)
+        inicioperiodo.send_keys(variavel_inicio)
+        
+        time.sleep(0.4)
+        finalperiodo = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
+            )
+        time.sleep(0.2)
+        finalperiodo.send_keys(variavel_final)
+        
+        consulta = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
+            )
+        consulta.click()
+        
+        time.sleep(5)
+        
+    except:
+        print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
     
 #O CÓDIGO COMEÇA A SER EXECUTADO AQUI    
     
