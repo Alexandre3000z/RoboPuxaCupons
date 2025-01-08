@@ -297,7 +297,9 @@ def entrarDTE(driver, numeroIncricao):
 
         time.sleep(2)          
         download.click()
-    
+        
+        time.sleep(2)
+        
         csvDownload = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
         ) 
