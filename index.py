@@ -465,6 +465,7 @@ def tratarCSV(directory, lista):
 
     
 def clicar_links_tabela(driver):
+    
     try:
 
         linhas = driver.find_elements(By.XPATH, '//*[@id="table-search-coupons"]/tbody/tr')
@@ -551,53 +552,39 @@ def iniciar_processo(driver, inscricaoEstadual):
             EC.presence_of_element_located((By.XPATH, '//*[@id="menu_dir"]/ul/li/a'))
         )
         acessarMFE.click()
-        
+        # Localização do elemento
+        element_locator = (By.CSS_SELECTOR, "div.modal-backdrop.am-fade")
+
+        # Aguarde até que a classe 'ng-hide' seja adicionada ao elemento
         try:
-            # Aguarde a tabela carregar
-            WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+            WebDriverWait(driver, 150).until(
+                lambda driver: "ng-hide" in driver.find_element(*element_locator).get_attribute("class")
             )
+            print("O elemento adquiriu a classe 'ng-hide'.")
+        except Exception as e:
+            print("Timeout: o elemento não adquiriu a classe 'ng-hide' dentro do tempo esperado.")
+       
+        # Aguarde a tabela carregar
+        WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+        )
 
-            #Lista das linhas
-            linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
-            # print(linhas)
-            
-            for linha in linhas:
-                celula = linha.find_element(By.XPATH, './td[1]')
-                celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
-                textoNome = celulaNome.text
-                texto_da_celula = celula.text
-                inscricaoEstadual = inscricaoEstadual.lstrip('0')
-
-                if(texto_da_celula == inscricaoEstadual):
-                    celula.click()
-                    print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
-                    break
+        #Lista das linhas
+        linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
+        # print(linhas)
         
-        except Exception:
-            print('Erro de carregamento, limpando pagina e tentando novamente.')
-            driver.refresh()
-            time.sleep(5)
-            # Aguarde a tabela carregar
-            WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
-            )
+        for linha in linhas:
+            celula = linha.find_element(By.XPATH, './td[1]')
+            celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
+            textoNome = celulaNome.text
+            texto_da_celula = celula.text
+            inscricaoEstadual = inscricaoEstadual.lstrip('0')
 
-            #Lista das linhas
-            linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
-            # print(linhas)
-            
-            for linha in linhas:
-                celula = linha.find_element(By.XPATH, './td[1]')
-                celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
-                textoNome = celulaNome.text
-                texto_da_celula = celula.text
-                inscricaoEstadual = inscricaoEstadual.lstrip('0')
-
-                if(texto_da_celula == inscricaoEstadual):
-                    celula.click()
-                    print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
-                    break    
+            if(texto_da_celula == inscricaoEstadual):
+                celula.click()
+                print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
+                break
+        
                 
                     
 
