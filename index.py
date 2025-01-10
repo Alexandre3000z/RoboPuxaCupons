@@ -302,7 +302,7 @@ def entrarDTE(driver, numeroIncricao):
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
         ) 
         csvDownload.click()
-        time.sleep(3)
+        time.sleep(8)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
@@ -366,7 +366,7 @@ def BaixarOsCancelados(driver):
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
         ) 
         csv.click()
-        time.sleep(4)
+        time.sleep(8)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[1]/button'))
