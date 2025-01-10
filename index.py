@@ -620,8 +620,53 @@ def comeca_consulta(driver, cfe):
     
 
   #PASSO 3 AMBIENTE SEGURO            
+def sairAmbienteSeguro(driver):
+# Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+    # Agora encontre o link <a> dentro desse quarto <li>
+    link = fourth_li.find_element(By.TAG_NAME, 'a')
+    
+    
+    link.click()
+    
+    time.sleep(3)
+    
+    #SAINDO DO SISTEMA DE FORMA CORRETA
+    
+    sair2 = WebDriverWait(driver, 50).until(
+        EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+    )
+    
+    sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+    sair2Sim.click()
+    
+    time.sleep(3)
+    
+    sairConfirma = WebDriverWait(driver, 50).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+    )
+    
+    sairConfirma.click()
+    time.sleep(3)
+    driver.get('https://www.sefaz.ce.gov.br/ambiente-seguro/')
+    
+    time.sleep(2)
+    
+    login = WebDriverWait(driver, 50).until(
+        EC.presence_of_element_located((By.XPATH , '//*[@id="main"]/section/div/div/ul/li[1]/a'))
+    )
+    login.click()
+    
+    time.sleep(3)
+    
+    sairAS = WebDriverWait(driver,50).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="textoContainer"]/form/table/tbody/tr[2]/td/input'))
+    )
+    sairAS.click()
+                        
            
-def iniciarDownloads(driver):
+def iniciarDownloads(driver, inscricao):
     time.sleep(13)    
     # Captura as abas abertas no navegador
     abas = driver.window_handles
@@ -643,6 +688,27 @@ def iniciarDownloads(driver):
             analisexml = analisadorXmls(listaCFEtotal)
             for index, cupom in enumerate (analisexml, start=1):
                 try:
+                    if index % 1998 == 0:
+                        sairAmbienteSeguro(driver)
+                        time.sleep(2)
+                        driver.get('https://servicos.sefaz.ce.gov.br/internet/acessoseguro/servicosenha/logarusuario/login.asp')
+                        time.sleep(2)
+                        realizar_login(driver)
+                        
+                        iniciar_processo(driver, inscricao)
+                        time.sleep(10)
+                        print('ERA PARA ELE MUDAR AS ABASSSSS')
+                        # Lista todas as janelas/abas abertas
+                        window_handles = driver.window_handles
+
+                        # Mantém apenas a última aba aberta
+                        for handle in window_handles[:-1]:
+                            driver.switch_to.window(handle)
+                            driver.close()
+
+                        # Troca para a última aba
+                        driver.switch_to.window(window_handles[-1])
+                        
                     # Lógica de atualização e limpeza de cache
                     if index % 50 == 0:  # A cada 50 itens
                         
@@ -802,7 +868,7 @@ try:
             realizar_login(driver)
             # teste = "69077339"
             iniciar_processo(driver, item)
-            iniciarDownloads(driver)
+            iniciarDownloads(driver, item)
             
             if opcao in (1, 3, 4, 7):
                 baixarCancelamento(driver)
@@ -858,7 +924,7 @@ try:
         print("F2 pressionado, continuando o processo...")
         # teste = "69077339"
         iniciar_processo(driver, inscricao)
-        iniciarDownloads(driver)
+        iniciarDownloads(driver, inscricao)
         
         if opcao in (1, 3, 4, 7):
             baixarCancelamento(driver)
