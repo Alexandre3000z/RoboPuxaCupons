@@ -1015,4 +1015,3 @@ finally:
 
 time.sleep(2)
 print("Processo finalizado... ")
-time.sleep(10)
