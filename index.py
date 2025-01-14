@@ -847,13 +847,67 @@ time.sleep(2)
 
     
 try:
-    if(opcaoInicial == 1):
-        for item in escricoes:
+    try:
+        if(opcaoInicial == 1):
+            for item in escricoes:
+                if(opcao != 7):
+                    autorizados = entrarDTE(driver,item)
+                    time.sleep(5)
+                    if opcao in (1, 2, 4, 5):
+                        if(autorizados == True):
+                            tratarCSV(downloads_directory, 'autorizados')
+                        time.sleep(1.5)
+                        apagarCSV(downloads_directory)
+                        
+                    cancelados = BaixarOsCancelados(driver)
+                    time.sleep(5)
+                    if opcao in (1, 2, 3, 6):
+                        if(cancelados == True):
+                            tratarCSV(downloads_directory, 'cancelados')
+                        time.sleep(1.5)
+                        apagarCSV(downloads_directory)
+
+                # Abra a página desejada
+                driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+                
+                time.sleep(2)
+                realizar_login(driver)
+                # teste = "69077339"
+                iniciar_processo(driver, item)
+                iniciarDownloads(driver, item)
+                
+                if opcao in (1, 3, 4, 7):
+                    baixarCancelamento(driver)
+                    
+                blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
+                if blocos:
+                    for index, item in enumerate(blocos):
+                        if index == len(blocos) - 1:
+                            item.click()
+                            time.sleep(5)            
+
+                    paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
+                    if paginas:
+                        for num, item in enumerate(paginas):
+                            
+                            if num != 0 and num != len(paginas) - 1:
+                                if num != 1:   
+                                    item.click()
+                                    time.sleep(1)
+                                clicar_links_tabela(driver)
+                    else:
+                        clicar_links_tabela(driver)        
+        
+        #ENTRANDO NO MODO MANUAL 
+        else:
             if(opcao != 7):
-                autorizados = entrarDTE(driver,item)
+                
+                autorizados = processo1_Dte(driver)
+                inscricao = autorizados[1]
+                print(f'Incrição estadual: {inscricao}')
                 time.sleep(5)
                 if opcao in (1, 2, 4, 5):
-                    if(autorizados == True):
+                    if(autorizados[0] == True):
                         tratarCSV(downloads_directory, 'autorizados')
                     time.sleep(1.5)
                     apagarCSV(downloads_directory)
@@ -861,7 +915,7 @@ try:
                 cancelados = BaixarOsCancelados(driver)
                 time.sleep(5)
                 if opcao in (1, 2, 3, 6):
-                    if(cancelados == True):
+                    if(cancelados[0] == True):
                         tratarCSV(downloads_directory, 'cancelados')
                     time.sleep(1.5)
                     apagarCSV(downloads_directory)
@@ -870,10 +924,13 @@ try:
             driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
             
             time.sleep(2)
-            realizar_login(driver)
+            
+            print("Entre no Ambiente Seguro com seu Login ou certificado e após isso pressione F2")
+            keyboard.wait("f2")
+            print("F2 pressionado, continuando o processo...")
             # teste = "69077339"
-            iniciar_processo(driver, item)
-            iniciarDownloads(driver, item)
+            iniciar_processo(driver, inscricao)
+            iniciarDownloads(driver, inscricao)
             
             if opcao in (1, 3, 4, 7):
                 baixarCancelamento(driver)
@@ -884,7 +941,7 @@ try:
                     if index == len(blocos) - 1:
                         item.click()
                         time.sleep(5)            
-
+                #testarrrrrr
                 paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
                 if paginas:
                     for num, item in enumerate(paginas):
@@ -895,99 +952,45 @@ try:
                                 time.sleep(1)
                             clicar_links_tabela(driver)
                 else:
-                    clicar_links_tabela(driver)        
-        
-    #ENTRANDO NO MODO MANUAL 
-    else:
-        if(opcao != 7):
-            
-            autorizados = processo1_Dte(driver)
-            inscricao = autorizados[1]
-            print(f'Incrição estadual: {inscricao}')
-            time.sleep(5)
-            if opcao in (1, 2, 4, 5):
-                if(autorizados[0] == True):
-                    tratarCSV(downloads_directory, 'autorizados')
-                time.sleep(1.5)
-                apagarCSV(downloads_directory)
+                    clicar_links_tabela(driver)    
+                        
                 
-            cancelados = BaixarOsCancelados(driver)
-            time.sleep(5)
-            if opcao in (1, 2, 3, 6):
-                if(cancelados[0] == True):
-                    tratarCSV(downloads_directory, 'cancelados')
-                time.sleep(1.5)
-                apagarCSV(downloads_directory)
+            #Saindo do login para depois logar de novo
+        time.sleep(5)
+        organizarPastas()
+        
+        # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+        fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
-        # Abra a página desejada
-        driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+        # Agora encontre o link <a> dentro desse quarto <li>
+        link = fourth_li.find_element(By.TAG_NAME, 'a')
         
-        time.sleep(2)
         
-        print("Entre no Ambiente Seguro com seu Login ou certificado e após isso pressione F2")
-        keyboard.wait("f2")
-        print("F2 pressionado, continuando o processo...")
-        # teste = "69077339"
-        iniciar_processo(driver, inscricao)
-        iniciarDownloads(driver, inscricao)
+        link.click()
         
-        if opcao in (1, 3, 4, 7):
-            baixarCancelamento(driver)
-            
-        blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
-        if blocos:
-            for index, item in enumerate(blocos):
-                if index == len(blocos) - 1:
-                    item.click()
-                    time.sleep(5)            
-            #testarrrrrr
-            paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
-            if paginas:
-                for num, item in enumerate(paginas):
-                    
-                    if num != 0 and num != len(paginas) - 1:
-                        if num != 1:   
-                            item.click()
-                            time.sleep(1)
-                        clicar_links_tabela(driver)
-            else:
-                clicar_links_tabela(driver)    
-                      
-            
-        #Saindo do login para depois logar de novo
-    time.sleep(5)
-    organizarPastas()
-    
-    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
-    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
-
-    # Agora encontre o link <a> dentro desse quarto <li>
-    link = fourth_li.find_element(By.TAG_NAME, 'a')
-    
-    
-    link.click()
-    
-    time.sleep(3)
-    
-    #SAINDO DO SISTEMA DE FORMA CORRETA
-    
-    sair2 = WebDriverWait(driver, 50).until(
-        EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
-    )
-    
-    sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
-    sair2Sim.click()
-    
-    time.sleep(3)
-    
-    sairConfirma = WebDriverWait(driver, 50).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
-    )
-    
-    sairConfirma.click()
-    
-    
-    time.sleep(10)
+        time.sleep(3)
+        
+        #SAINDO DO SISTEMA DE FORMA CORRETA
+        
+        sair2 = WebDriverWait(driver, 50).until(
+            EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+        )
+        
+        sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+        sair2Sim.click()
+        
+        time.sleep(3)
+        
+        sairConfirma = WebDriverWait(driver, 50).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+        )
+        
+        sairConfirma.click()
+        
+        
+        time.sleep(10)
+    except:
+        print('Erro detectado, finalizando o programa...')    
 
 finally:
  
