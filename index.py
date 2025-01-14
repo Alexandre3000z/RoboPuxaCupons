@@ -200,32 +200,31 @@ def entrarDTE(driver, numeroIncricao):
     botaoEntrar.click()
     time.sleep(15)
     LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-    try:
-        for linha in LinhasTabela:
-            cells = linha.find_elements(By.TAG_NAME, 'td')
-            inscricao = cells[1].text
-        
-        
-            if(numero_formatado == inscricao):
-                linha.click()
-                time.sleep(5)
+
+    for linha in LinhasTabela:
+        cells = linha.find_elements(By.TAG_NAME, 'td')
+        inscricao = cells[1].text
     
+    
+        if(numero_formatado == inscricao):
+            linha.click()
+            time.sleep(5)
+
             
     
         
-        confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
-    except Exception as e:
-        print('A empresa não tem procuração no DTE, fazer procuração e tentar novamente.')
-                    
+    confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')              
     botaoEntrar2 = confirma[1]
     botaoEntrar2.click()
     
-    siget = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
-    )
-    time.sleep(12)        
-    siget.click()
-    
+    try:
+        siget = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
+        )
+        time.sleep(12)        
+        siget.click()
+    except:
+        print('A empresa não possui procuração no DTE, fazer procuração e tentar novamente...')
     
     time.sleep(12)
     autoit.send('{ENTER}')
