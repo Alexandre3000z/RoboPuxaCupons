@@ -200,14 +200,18 @@ def entrarDTE(driver, numeroIncricao):
     botaoEntrar.click()
     time.sleep(15)
     LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-    
-    for linha in LinhasTabela:
-        cells = linha.find_elements(By.TAG_NAME, 'td')
-        inscricao = cells[1].text
-       
-       
-        if(numero_formatado == inscricao):
-            linha.click()
+    try:
+        for linha in LinhasTabela:
+            cells = linha.find_elements(By.TAG_NAME, 'td')
+            inscricao = cells[1].text
+        
+        
+            if(numero_formatado == inscricao):
+                linha.click()
+                
+    except Exception as e:
+        print('A empresa não tem procuração no DTE, fazer procuração e tentar novamente.')
+                    
             
     time.sleep(5)
         
