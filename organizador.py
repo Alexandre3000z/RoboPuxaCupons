@@ -72,7 +72,9 @@ def organizarPastas():
     nome_mes = f"{mes_atualNumero:02d}-{mes_atual}"
 
     arquivos_existentes = set(os.listdir(downloads_dir))
-
+    somaMov = 0
+    somaDel = 0
+    print('Organizando XMLS, aguarde...')  
     # Loop para criar diretórios apenas para arquivos XML
     for inscricao in arquivos_existentes:
         origem = os.path.join(downloads_dir,inscricao)
@@ -97,15 +99,20 @@ def organizarPastas():
                     
                     if not os.path.exists(arquivoFinal):
                         shutil.move(origem, destino)
-                        print(f'{inscricao} movido para {destino}')
+                        # print(f'{inscricao} movido para {destino}')
+                        somaMov = somaMov + 1
                     
                     else:
                         os.remove(origem)
-                        print(f'{inscricao}: O XML já existe na pasta, arquivo removido com sucesso')
-        
+                        # print(f'{inscricao}: O XML já existe na pasta, arquivo removido com sucesso')
+                        somaDel = somaDel + 1  
+                
                 else:
                     print(f"Nome do arquivo inválido para conversão para mês: '{inscricao}'")
             else:
                 print(f"Tamanho insuficiente para extrair mês do arquivo: '{inscricao}'")
+              
+    print(f'XMLS removidos: {somaDel}')
+    print(f'XMLS organizados: {somaMov}')       
                 
 organizarPastas()
