@@ -225,6 +225,22 @@ def entrarDTE(driver, numeroIncricao):
         siget.click()
     except:
         print('A empresa não possui procuração no DTE, fazer procuração e tentar novamente...')
+        
+        driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+        
+        time.sleep(2)
+        
+        perfildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+        )       
+        perfildte.click()
+        time.sleep(3)
+        sairPefildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+        )       
+        sairPefildte.click()
+        
+        time.sleep(2)
         return None
     
     time.sleep(12)
