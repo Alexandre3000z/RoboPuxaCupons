@@ -69,7 +69,7 @@ while True:
 
 
 if opcaoInicial == 1:
-    entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
+    entradaEscricao = input("Digite as inscrição estadual: ")
     escricoes =  entradaEscricao.split(", ")
 
 
