@@ -225,6 +225,7 @@ def entrarDTE(driver, numeroIncricao):
         siget.click()
     except:
         print('A empresa não possui procuração no DTE, fazer procuração e tentar novamente...')
+        return None
     
     time.sleep(12)
     autoit.send('{ENTER}')
