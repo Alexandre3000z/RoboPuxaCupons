@@ -208,14 +208,15 @@ def entrarDTE(driver, numeroIncricao):
         
             if(numero_formatado == inscricao):
                 linha.click()
-                
+                time.sleep(5)
+    
+            
+    
+        
+        confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
     except Exception as e:
         print('A empresa não tem procuração no DTE, fazer procuração e tentar novamente.')
                     
-            
-    time.sleep(5)
-        
-    confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
     botaoEntrar2 = confirma[1]
     botaoEntrar2.click()
     
