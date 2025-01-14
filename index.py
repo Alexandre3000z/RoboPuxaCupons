@@ -16,8 +16,35 @@ import calendar
 from login import SENHA, USUARIO
 from organizador import analisadorXmls, organizarPastas, apagarCSV
 from manual import processo1_Dte
+from T import TOKEN
 import keyboard
 
+import requests
+
+def verificar_arquivo(url, texto_procurado):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Gera um erro se a requisição falhar
+        conteudo = response.text
+        return texto_procurado in conteudo
+    except Exception as e:
+        print(f"Erro ao acessar o arquivo: {e}")
+        return False
+
+# Fluxo principal
+def validarAcesso():
+    
+    url = "https://drive.google.com/uc?export=download&id=1k9Y8YgnsE4KPvQ3_62MdELLj6UhVztsH"
+    texto_procurado = TOKEN
+    
+    if verificar_arquivo(url, texto_procurado):
+        
+        return True
+        # Código autorizado
+    else:
+        # print("Licença não encontrada. Execução não autorizada.")
+        return False
+validacao = validarAcesso()
 
 # Efeito de digitação
 def type_animation(text, delay=0.004):
@@ -45,102 +72,102 @@ type_animation('=' * 100)
 print('\n')
 
 
+if validacao == True:
+
+
+    # Opções para o usuário
+    print("Escolha uma das opções abaixo:")
+    print('\n')
+    print("1- Processo Automatico (Com procuração)")
+    print("2- Processo Manual (Sem procuração)")
+
+
+    # Valida a escolha do usuário
+    while True:
+        try:
+            opcaoInicial = int(input("\nDigite o número da opção desejada (1-2): "))
+            if opcaoInicial in range(1, 3):
+                break
+            else:
+                print("Opção inválida! Digite um número entre 1 e 2.")
+        except ValueError:
+            print("Entrada inválida! Digite apenas números entre 1 e 2.")
 
 
 
-# Opções para o usuário
-print("Escolha uma das opções abaixo:")
-print('\n')
-print("1- Processo Automatico (Com procuração)")
-print("2- Processo Manual (Sem procuração)")
-
-
-# Valida a escolha do usuário
-while True:
-    try:
-        opcaoInicial = int(input("\nDigite o número da opção desejada (1-2): "))
-        if opcaoInicial in range(1, 3):
-            break
-        else:
-            print("Opção inválida! Digite um número entre 1 e 2.")
-    except ValueError:
-        print("Entrada inválida! Digite apenas números entre 1 e 2.")
-
-
-
-if opcaoInicial == 1:
-    entradaEscricao = input("Digite as inscrição estadual: ")
-    escricoes =  entradaEscricao.split(", ")
-
-
-
-
-def gerar_datas_mes(mes: int, ano: int):
-    """
-    Gera as datas de início e fim do mês fornecido.
-    :param mes: Mês desejado (1-12)
-    :param ano: Ano desejado (ex: 2024)
-    :return: variavel_inicio, variavel_final como strings no formato DD/MM/AAAA
-    """
-    # Primeiro dia do mês
-    primeiro_dia = f"01/{mes:02d}/{ano}"
-    
-    # Último dia do mês usando o módulo 'calendar'
-    ultimo_dia_numero = calendar.monthrange(ano, mes)[1]  # Retorna o último dia do mês
-    ultimo_dia = f"{ultimo_dia_numero:02d}/{mes:02d}/{ano}"
-    
-    return primeiro_dia, ultimo_dia
-
-
-mes_desejado = int(input("Informe o mês (1-12): "))
-ano_desejado = int(input("Informe o ano (ex: 2024): "))
-variavel_inicio, variavel_final = gerar_datas_mes(mes_desejado, ano_desejado)
+    if opcaoInicial == 1:
+        entradaEscricao = input("Digite as inscrição estadual: ")
+        escricoes =  entradaEscricao.split(", ")
 
 
 
 
-listaCFEtotal = []
+    def gerar_datas_mes(mes: int, ano: int):
+        """
+        Gera as datas de início e fim do mês fornecido.
+        :param mes: Mês desejado (1-12)
+        :param ano: Ano desejado (ex: 2024)
+        :return: variavel_inicio, variavel_final como strings no formato DD/MM/AAAA
+        """
+        # Primeiro dia do mês
+        primeiro_dia = f"01/{mes:02d}/{ano}"
+        
+        # Último dia do mês usando o módulo 'calendar'
+        ultimo_dia_numero = calendar.monthrange(ano, mes)[1]  # Retorna o último dia do mês
+        ultimo_dia = f"{ultimo_dia_numero:02d}/{mes:02d}/{ano}"
+        
+        return primeiro_dia, ultimo_dia
 
-nomedaempresa = ''
-# Diretório de downloads do usuário (substitua conforme necessário)
-downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
-print('Arquivos serão baixados em: ',downloads_directory)
+
+    mes_desejado = int(input("Informe o mês (1-12): "))
+    ano_desejado = int(input("Informe o ano (ex: 2024): "))
+    variavel_inicio, variavel_final = gerar_datas_mes(mes_desejado, ano_desejado)
 
 
 
-# Opções para o usuário
-print("\nEscolha uma das opções abaixo:")
-print("1- Tudo")
-print("2- Autorizados e Cancelados")
-print("3- Cancelados e Cancelamentos")
-print("4- Autorizados e Cancelamentos")
-print("5- Somente Autorizados")
-print("6- Somente Cancelados")
-print("7- Somente Cancelamentos")
 
-# Valida a escolha do usuário
-while True:
-    try:
-        opcao = int(input("\nDigite o número da opção desejada (1-7): "))
-        if opcao in range(1, 8):
-            break
-        else:
-            print("Opção inválida! Digite um número entre 1 e 7.")
-    except ValueError:
-        print("Entrada inválida! Digite apenas números entre 1 e 7.")
+    listaCFEtotal = []
 
-# Confirmando a escolha do usuário
-opcoes_dict = {
-    1: "Tudo",
-    2: "Autorizados e Cancelados",
-    3: "Cancelados e Cancelamentos",
-    4: "Autorizados e Cancelamentos",
-    5: "Somente Autorizados",
-    6: "Somente Cancelados",
-    7: "Somente Cancelamentos"
-}
+    nomedaempresa = ''
+    # Diretório de downloads do usuário (substitua conforme necessário)
+    downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
+    print('Arquivos serão baixados em: ',downloads_directory)
 
-print(f"\nVocê selecionou: {opcoes_dict[opcao]}")
+
+
+    # Opções para o usuário
+    print("\nEscolha uma das opções abaixo:")
+    print("1- Tudo")
+    print("2- Autorizados e Cancelados")
+    print("3- Cancelados e Cancelamentos")
+    print("4- Autorizados e Cancelamentos")
+    print("5- Somente Autorizados")
+    print("6- Somente Cancelados")
+    print("7- Somente Cancelamentos")
+
+    # Valida a escolha do usuário
+    while True:
+        try:
+            opcao = int(input("\nDigite o número da opção desejada (1-7): "))
+            if opcao in range(1, 8):
+                break
+            else:
+                print("Opção inválida! Digite um número entre 1 e 7.")
+        except ValueError:
+            print("Entrada inválida! Digite apenas números entre 1 e 7.")
+
+    # Confirmando a escolha do usuário
+    opcoes_dict = {
+        1: "Tudo",
+        2: "Autorizados e Cancelados",
+        3: "Cancelados e Cancelamentos",
+        4: "Autorizados e Cancelamentos",
+        5: "Somente Autorizados",
+        6: "Somente Cancelados",
+        7: "Somente Cancelamentos"
+    }
+
+    print(f"\nVocê selecionou: {opcoes_dict[opcao]}")
 
 
 
@@ -829,48 +856,102 @@ def baixarCancelamento(driver):
         
     except:
         print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
-    
+
+  
 #O CÓDIGO COMEÇA A SER EXECUTADO AQUI    
-    
-    
-# Configuração do Chrome
-service = Service(ChromeDriverManager().install())
-options = uc.ChromeOptions()
+if validacao == True:    
+        
+    # Configuração do Chrome
+    service = Service(ChromeDriverManager().install())
+    options = uc.ChromeOptions()
 
-# Obtém o caminho para a pasta do usuário
-user_data_dir = os.path.join(
-    os.path.expanduser("~"), 
-    "AppData", "Local", "Google", "Chrome", "User Data"
-)
+    # Obtém o caminho para a pasta do usuário
+    user_data_dir = os.path.join(
+        os.path.expanduser("~"), 
+        "AppData", "Local", "Google", "Chrome", "User Data"
+    )
 
-# Adiciona o argumento ao Selenium
-options.add_argument(f"--user-data-dir={user_data_dir}")
-options.add_argument("--profile-directory=Default")  # Modifique se necessário
+    # Adiciona o argumento ao Selenium
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+    options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
-# Configurações para evitar bloqueios
-options.add_argument("--disable-popup-blocking")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--disable-gpu")
-options.add_argument("--allow-running-insecure-content")
-options.add_argument("--ignore-certificate-errors")
+    # Configurações para evitar bloqueios
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--allow-running-insecure-content")
+    options.add_argument("--ignore-certificate-errors")
 
-# Inicia o navegador
-driver = uc.Chrome(service=service, options=options)
-driver.implicitly_wait(10)
-time.sleep(2)
-autoit.send('{F11}')
-time.sleep(2)
+    # Inicia o navegador
+    driver = uc.Chrome(service=service, options=options)
+    driver.implicitly_wait(10)
+    time.sleep(2)
+    autoit.send('{F11}')
+    time.sleep(2)
 
-    
-try:
+        
     try:
-        if(opcaoInicial == 1):
-            for item in escricoes:
+        try:
+            if(opcaoInicial == 1):
+                for item in escricoes:
+                    if(opcao != 7):
+                        autorizados = entrarDTE(driver,item)
+                        time.sleep(5)
+                        if opcao in (1, 2, 4, 5):
+                            if(autorizados == True):
+                                tratarCSV(downloads_directory, 'autorizados')
+                            time.sleep(1.5)
+                            apagarCSV(downloads_directory)
+                            
+                        cancelados = BaixarOsCancelados(driver)
+                        time.sleep(5)
+                        if opcao in (1, 2, 3, 6):
+                            if(cancelados == True):
+                                tratarCSV(downloads_directory, 'cancelados')
+                            time.sleep(1.5)
+                            apagarCSV(downloads_directory)
+
+                    # Abra a página desejada
+                    driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+                    
+                    time.sleep(2)
+                    realizar_login(driver)
+                    # teste = "69077339"
+                    iniciar_processo(driver, item)
+                    iniciarDownloads(driver, item)
+                    
+                    if opcao in (1, 3, 4, 7):
+                        baixarCancelamento(driver)
+                        
+                    blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
+                    if blocos:
+                        for index, item in enumerate(blocos):
+                            if index == len(blocos) - 1:
+                                item.click()
+                                time.sleep(5)            
+
+                        paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
+                        if paginas:
+                            for num, item in enumerate(paginas):
+                                
+                                if num != 0 and num != len(paginas) - 1:
+                                    if num != 1:   
+                                        item.click()
+                                        time.sleep(1)
+                                    clicar_links_tabela(driver)
+                        else:
+                            clicar_links_tabela(driver)        
+            
+            #ENTRANDO NO MODO MANUAL 
+            else:
                 if(opcao != 7):
-                    autorizados = entrarDTE(driver,item)
+                    
+                    autorizados = processo1_Dte(driver)
+                    inscricao = autorizados[1]
+                    print(f'Incrição estadual: {inscricao}')
                     time.sleep(5)
                     if opcao in (1, 2, 4, 5):
-                        if(autorizados == True):
+                        if(autorizados[0] == True):
                             tratarCSV(downloads_directory, 'autorizados')
                         time.sleep(1.5)
                         apagarCSV(downloads_directory)
@@ -878,7 +959,7 @@ try:
                     cancelados = BaixarOsCancelados(driver)
                     time.sleep(5)
                     if opcao in (1, 2, 3, 6):
-                        if(cancelados == True):
+                        if(cancelados[0] == True):
                             tratarCSV(downloads_directory, 'cancelados')
                         time.sleep(1.5)
                         apagarCSV(downloads_directory)
@@ -887,10 +968,13 @@ try:
                 driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
                 
                 time.sleep(2)
-                realizar_login(driver)
+                
+                print("Entre no Ambiente Seguro com seu Login ou certificado e após isso pressione F2")
+                keyboard.wait("f2")
+                print("F2 pressionado, continuando o processo...")
                 # teste = "69077339"
-                iniciar_processo(driver, item)
-                iniciarDownloads(driver, item)
+                iniciar_processo(driver, inscricao)
+                iniciarDownloads(driver, inscricao)
                 
                 if opcao in (1, 3, 4, 7):
                     baixarCancelamento(driver)
@@ -901,7 +985,7 @@ try:
                         if index == len(blocos) - 1:
                             item.click()
                             time.sleep(5)            
-
+                    #testarrrrrr
                     paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
                     if paginas:
                         for num, item in enumerate(paginas):
@@ -912,106 +996,53 @@ try:
                                     time.sleep(1)
                                 clicar_links_tabela(driver)
                     else:
-                        clicar_links_tabela(driver)        
-        
-        #ENTRANDO NO MODO MANUAL 
-        else:
-            if(opcao != 7):
-                
-                autorizados = processo1_Dte(driver)
-                inscricao = autorizados[1]
-                print(f'Incrição estadual: {inscricao}')
-                time.sleep(5)
-                if opcao in (1, 2, 4, 5):
-                    if(autorizados[0] == True):
-                        tratarCSV(downloads_directory, 'autorizados')
-                    time.sleep(1.5)
-                    apagarCSV(downloads_directory)
+                        clicar_links_tabela(driver)    
+                            
                     
-                cancelados = BaixarOsCancelados(driver)
-                time.sleep(5)
-                if opcao in (1, 2, 3, 6):
-                    if(cancelados[0] == True):
-                        tratarCSV(downloads_directory, 'cancelados')
-                    time.sleep(1.5)
-                    apagarCSV(downloads_directory)
-
-            # Abra a página desejada
-            driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+                #Saindo do login para depois logar de novo
+            time.sleep(5)
+            organizarPastas()
             
-            time.sleep(2)
+            # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+            fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+            # Agora encontre o link <a> dentro desse quarto <li>
+            link = fourth_li.find_element(By.TAG_NAME, 'a')
             
-            print("Entre no Ambiente Seguro com seu Login ou certificado e após isso pressione F2")
-            keyboard.wait("f2")
-            print("F2 pressionado, continuando o processo...")
-            # teste = "69077339"
-            iniciar_processo(driver, inscricao)
-            iniciarDownloads(driver, inscricao)
             
-            if opcao in (1, 3, 4, 7):
-                baixarCancelamento(driver)
-                
-            blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
-            if blocos:
-                for index, item in enumerate(blocos):
-                    if index == len(blocos) - 1:
-                        item.click()
-                        time.sleep(5)            
-                #testarrrrrr
-                paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
-                if paginas:
-                    for num, item in enumerate(paginas):
-                        
-                        if num != 0 and num != len(paginas) - 1:
-                            if num != 1:   
-                                item.click()
-                                time.sleep(1)
-                            clicar_links_tabela(driver)
-                else:
-                    clicar_links_tabela(driver)    
-                        
-                
-            #Saindo do login para depois logar de novo
-        time.sleep(5)
-        organizarPastas()
-        
-        # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
-        fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+            link.click()
+            
+            time.sleep(3)
+            
+            #SAINDO DO SISTEMA DE FORMA CORRETA
+            
+            sair2 = WebDriverWait(driver, 50).until(
+                EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+            )
+            
+            sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+            sair2Sim.click()
+            
+            time.sleep(3)
+            
+            sairConfirma = WebDriverWait(driver, 50).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+            )
+            
+            sairConfirma.click()
+            
+            
+            time.sleep(10)
+        except:
+            print('Erro detectado, finalizando o programa...')    
 
-        # Agora encontre o link <a> dentro desse quarto <li>
-        link = fourth_li.find_element(By.TAG_NAME, 'a')
-        
-        
-        link.click()
-        
-        time.sleep(3)
-        
-        #SAINDO DO SISTEMA DE FORMA CORRETA
-        
-        sair2 = WebDriverWait(driver, 50).until(
-            EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
-        )
-        
-        sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
-        sair2Sim.click()
-        
-        time.sleep(3)
-        
-        sairConfirma = WebDriverWait(driver, 50).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
-        )
-        
-        sairConfirma.click()
-        
-        
-        time.sleep(10)
-    except:
-        print('Erro detectado, finalizando o programa...')    
+    finally:
+    
+        # Feche o navegador após a execução
+        driver.quit()
 
-finally:
- 
-    # Feche o navegador após a execução
-    driver.quit()
+    time.sleep(2)
+    print("Processo finalizado... ")
 
-time.sleep(2)
-print("Processo finalizado... ")
+else:
+    print('Licença não é válida, por gentileza, fale com o administrador do software.')
