@@ -946,12 +946,12 @@ if validacao == True:
             else:
                 if(opcao != 7):
                     
-                    autorizados = processo1_Dte(driver)
+                    autorizados = processo1_Dte(driver, mes_desejado, ano_desejado)
                     inscricao = autorizados[1]
                     print(f'Incrição estadual: {inscricao}')
                     time.sleep(5)
                     if opcao in (1, 2, 4, 5):
-                        if(autorizados[0] == True):
+                        if(autorizados[0] == 'True'):
                             tratarCSV(downloads_directory, 'autorizados')
                         time.sleep(1.5)
                         apagarCSV(downloads_directory)
@@ -959,7 +959,7 @@ if validacao == True:
                     cancelados = BaixarOsCancelados(driver)
                     time.sleep(5)
                     if opcao in (1, 2, 3, 6):
-                        if(cancelados[0] == True):
+                        if(cancelados == True):
                             tratarCSV(downloads_directory, 'cancelados')
                         time.sleep(1.5)
                         apagarCSV(downloads_directory)

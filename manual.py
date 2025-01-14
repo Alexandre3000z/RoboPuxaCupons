@@ -99,37 +99,37 @@ def processo1_Dte(driver, mes_desejado, ano_desejado ):
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div')
     
     if(tabelaValor.text != '0,00'):
-        
         valor = WebDriverWait(driver, 500).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
         )          
         valor.click()
 
-        time.sleep(5)
-        time.sleep(40)
-
+        time.sleep(10)
+        
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
         )
 
         time.sleep(2)          
         download.click()
-    
+        
+        time.sleep(8)
+        
         csvDownload = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
         ) 
         csvDownload.click()
-        time.sleep(3)
+        time.sleep(8)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
         ) 
         x.click()                                    
         time.sleep(2)
-        return [True, cgf_formatado]
+        return ['True', cgf_formatado]
     
     else:
         print('Essa empresa não tem cupons fiscais autorizados até o momento.')
-        return [False, cgf_formatado]
+        return ['False', cgf_formatado]
     
     
