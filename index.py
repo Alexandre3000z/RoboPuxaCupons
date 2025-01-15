@@ -809,26 +809,28 @@ def baixarCancelamento(driver):
         #Saindo do login para depois logar de novo
 
 if validacao == True:   
-        
-    # Configuração do Chrome
-    service = Service(ChromeDriverManager().install())
-    options = uc.ChromeOptions()
+    try:    
+        # Configuração do Chrome
+        service = Service(ChromeDriverManager().install())
+        options = uc.ChromeOptions()
 
-    # Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
-    options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
-    options.add_argument("--profile-directory=Default")  # Modifique se necessário
+        # Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
+        options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
+        options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
-    # Configurações para evitar bloqueios
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--allow-running-insecure-content")
-    options.add_argument("--ignore-certificate-errors")
+        # Configurações para evitar bloqueios
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--allow-running-insecure-content")
+        options.add_argument("--ignore-certificate-errors")
 
-    # Inicia o navegador
-    driver = uc.Chrome(service=service, options=options)
-    driver.implicitly_wait(10)
-
+        # Inicia o navegador
+        driver = uc.Chrome(service=service, options=options)
+        driver.implicitly_wait(10)
+    except:
+        print('Erro com o navegador Google Chorme, atualize o navegador e tente novamente...')
+        time.sleep(10)
 
         
     try:
