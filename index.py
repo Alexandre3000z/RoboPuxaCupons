@@ -648,21 +648,28 @@ def iniciar_processo(driver, inscricaoEstadual):
                 
 
 def comeca_consulta(driver, cfe):
-    time.sleep(0.5)
-    print('Começou o processo de clicar em consulta')
-    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
     
+    # Localização do elemento
+    element_locator = (By.CSS_SELECTOR, "div.modal-backdrop.am-fade")
+
+    # Aguarde até que a classe 'ng-hide' seja adicionada ao elemento
+    try:
+        WebDriverWait(driver, 150).until(
+            lambda driver: "ng-hide" in driver.find_element(*element_locator).get_attribute("class")
+        )
+        print("O elemento adquiriu a classe 'ng-hide'.")
+    except Exception as e:
+        print("Timeout: o elemento não adquiriu a classe 'ng-hide' dentro do tempo esperado.")
+        
+    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
     fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
     # Agora encontre o link <a> dentro desse quarto <li>
     link = fourth_li.find_element(By.TAG_NAME, 'a')
     
+    
     link.click()
-    
-    print(fourth_li)
-    
-   
-    time.sleep(1)
+    # time.sleep(0.5)
     
     cfekey = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cfeKey"]'))
