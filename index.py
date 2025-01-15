@@ -46,20 +46,48 @@ def validarAcesso():
 validacao = validarAcesso()
 
 
-# Data atual
-data_atual = datetime.now()
+def get_previos_month_and_year():
+    today = datetime.today()
+    if today.month ==  1:
+        previous_month = 12
+        year = today.year - 1
+    else:
+        previous_month = today.month - 1
+        year = today.year
+    return previous_month,year
 
-# Subtrair um mês
-mes_passado = data_atual.replace(day=1) - timedelta(days=1)
+mesano = get_previos_month_and_year()
+mes_passado = mesano[0]
+ano = mesano[1]
+nome_mes_passado = calendar.month_name[mes_passado]
 
-# Nome do mês passado
-nome_mes_passado = calendar.month_name[mes_passado.month]
+def gerar_datas_mes(mes: int, ano: int):
+        """
+        Gera as datas de início e fim do mês fornecido.
+        :param mes: Mês desejado (1-12)
+        :param ano: Ano desejado (ex: 2024)
+        :return: variavel_inicio, variavel_final como strings no formato DD/MM/AAAA
+        """
+        # Primeiro dia do mês
+        primeiro_dia = f"01/{mes:02d}/{ano}"
+        
+        # Último dia do mês usando o módulo 'calendar'
+        ultimo_dia_numero = calendar.monthrange(ano, mes)[1]  # Retorna o último dia do mês
+        ultimo_dia = f"{ultimo_dia_numero:02d}/{mes:02d}/{ano}"
+        
+        return primeiro_dia, ultimo_dia
+
+
+    
+variavel_inicio, variavel_final = gerar_datas_mes(mes_passado, ano)
+
+
+
 
 # Solicita ao usuário para digitar uma string
 # entradaEscricao = input("Digite as inscrições estaduais separados por vírgula e espaço: ")
 print(f'Serão emitidos todos os cupons de {nome_mes_passado}')
-entradaDataInicio = '01/11/2024'
-entradaDataFinal = '30/11/2024'
+
 # escricoes =  entradaEscricao.split(", ")
 
 listaCFEtotal = []
@@ -156,13 +184,26 @@ def pegarForAmbiente(driver):
     print('Feito a filtragem DTE > AMBIENTE SEGURO: ', len(listafiltrada), ' empresas tem procuração nas duas aplicações.')
 
 
-def entrarDTE(driver, numeroIncricao, indice):
+def entrarDTE(driver, numeroIncricao):
     # Verifica se o número tem 9 dígitos
     if len(numeroIncricao) != 9:
         raise ValueError("O número deve ter exatamente 9 dígitos")
     
+    
+   
     # Formata o número no padrão desejado
     numero_formatado = f"{numeroIncricao[:2]}.{numeroIncricao[2:5]}.{numeroIncricao[5:8]}-{numeroIncricao[8]}"
+    
+    # Obtém todas as guias abertas
+    abas = driver.window_handles
+
+    # Fecha todas as guias menos a última
+    for aba in abas[:-1]:  # Loop através de todas menos a última
+        driver.switch_to.window(aba)
+        driver.close()
+
+    # Alterna para a última guia
+    driver.switch_to.window(abas[-1])
     
     driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
 
@@ -170,8 +211,6 @@ def entrarDTE(driver, numeroIncricao, indice):
     inicio = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-index/div/div/div[2]/div[1]/div/div/a[1]/div'))
     )
-    
-    time.sleep(2)
                 
     inicio.click()
     
@@ -184,10 +223,27 @@ def entrarDTE(driver, numeroIncricao, indice):
     selecaoC.click()
 
     time.sleep(3)
-    ativo = WebDriverWait(driver, 300).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
-    )        
-    ativo.click()
+    
+    try:
+        ativo = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+        )        
+        ativo.click()
+    except:
+        print('Carregamento infinito detectado, corrigindo...')
+        driver.refresh()
+        time.sleep(3)
+        selecaoC = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
+        )
+        selecaoC.click()
+        time.sleep(3)
+        ativo = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+        )        
+        ativo.click()
+                
+    
 
     time.sleep(1)
 
@@ -195,171 +251,108 @@ def entrarDTE(driver, numeroIncricao, indice):
     EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
     )          
     botaoEntrar.click()
-    time.sleep(1)
+    time.sleep(15)
     LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-    continuar = False
+
     for linha in LinhasTabela:
         cells = linha.find_elements(By.TAG_NAME, 'td')
         inscricao = cells[1].text
-       
-       
-        if(numero_formatado == inscricao):
-            continuar = True
-            print('Encontrou a empresa')
-            linha.click()
-            
-    time.sleep(5)
     
-    if(continuar == False):
-        print('Não encontrou a empresa')
-        perfil = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
-        )       
-        perfil.click()
+    
+        if(numero_formatado == inscricao):
+            linha.click()
+            time.sleep(5)
+
+            
+    
         
-        time.sleep(2)
-        
-        sairPefil = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
-        )       
-        sairPefil.click()
-        
-        time.sleep(2)
-        
-        return [continuar]
-        
-    confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')
+    confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')              
     botaoEntrar2 = confirma[1]
     botaoEntrar2.click()
     
-    siget = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
-    )
-    time.sleep(12)        
-    siget.click()
+    try:
+        siget = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
+        )
+        time.sleep(12)        
+        siget.click()
+    except:
+        print('A empresa não possui procuração no DTE, fazer procuração e tentar novamente...')
+        
+        driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+        
+        time.sleep(2)
+        
+        perfildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+        )       
+        perfildte.click()
+        time.sleep(3)
+        sairPefildte = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+        )       
+        sairPefildte.click()
+        
+        time.sleep(2)
+        return None
     
-    
-    
-
-    
-    
-    
+    time.sleep(12)
+    autoit.send('{ENTER}')
+    time.sleep(5)
+    autoit.send('{ENTER}')
+    time.sleep(2)
+    autoit.send('{ENTER}')
     time.sleep(1)
+    
     # Guarda o identificador da janela original
     original_window = driver.current_window_handle
 
-    
     # Espera até que uma nova janela esteja aberta
-    WebDriverWait(driver, 50).until(EC.number_of_windows_to_be(2))
+    WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
 
     # Captura todos os identificadores de janelas abertas
     windows = driver.window_handles
 
-    
-    # Muda para a nova janela e fecha a antiga
+    # Muda para a nova janela
     for window in windows:
         if window != original_window:
             driver.switch_to.window(window)
             break
-
-    # Fecha a janela original
-    driver.switch_to.window(original_window)
-    driver.close()
-
-    # Retorna para a nova janela para continuar o processo
-    driver.switch_to.window(window)
-    if indice == 0:
-       time.sleep(10)
-       autoit.send('{ENTER}')
-       time.sleep(10)
-    for i in range(2):
-        try:
-            # Esperar o alerta aparecer
-            WebDriverWait(driver, 30).until(EC.alert_is_present())
-
-            # Alternar para o alerta e aceitá-lo
-            alert = Alert(driver)
-            alert.accept()
-            print("Alerta aceito e descartado.")
-            time.sleep(8)
-            
-        except Exception as e:
-            print(f"Nenhum alerta encontrado ou erro: {e}")
     
-    
-    try:
-        # Aguarda até que o elemento carregue (com timeout de 15 segundos)
-        painelErro = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="modalMensagem"]/div/div/div[2]/div/div[2]/div/div/label'))
-        )
-        print('Tela de erro detectada, fechando...')
-        time.sleep(1)
-        painelErro.click()
-    except:
-        # Se o elemento não carregar
-        print("Não foi encontrado nenhuma tela de erro, continuando processo...")
-                
-        
-    NfeCfe = WebDriverWait(driver, 3000).until(
+    NfeCfe = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="menu_indicadores_nfce"]'))
-    )
-   
-    
-    time.sleep(20)
-    autoit.send('{ESC}')
-
-        
-    time.sleep(5)    
-                  
+    )          
     NfeCfe.click()
     
     time.sleep(3)
     
+   
+    time.sleep(5)
+    
+    #SELECIONAR MES E ANO
+    selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
+    optionMes = Select(selectMes)
+    optionMes.select_by_index(mes_passado - 1)
+    
+    selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
+    optionAno = Select(selectAno)
+    optionAno.select_by_value(f'{ano}')
     
     
-    try:
-        # Aguarda até que o elemento carregue (com timeout de 15 segundos)
-        element = WebDriverWait(driver, 40).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-        )
-        element.click()
-    except:
-        # Se o elemento não carregar, recarrega a página
-        print("Carregamento infinito detectado, recarregando a página...")
-        driver.refresh()
-        for i in range(2):
-            try:
-                # Esperar o alerta aparecer
-                WebDriverWait(driver, 30).until(EC.alert_is_present())
-
-                # Alternar para o alerta e aceitá-lo
-                alert = Alert(driver)
-                alert.accept()
-                print("Alerta aceito e descartado.")
-                time.sleep(8)
-                
-            except Exception as e:
-                print(f"Nenhum alerta encontrado ou erro: {e}")
-                
-                
-        time.sleep(3)  # Aguarda a página carregar
-        # Tente clicar novamente após atualizar
-        element = WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-        )
-        element.click()
-    # pesquisar = WebDriverWait(driver, 30).until(
-    # EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
-    # )          
-    # pesquisar.click()
+    time.sleep(2)
     
-    time.sleep(3)
+    
+    pesquisar = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/div[1]/div[1]/button'))
+    )          
+    pesquisar.click()
+    
+    time.sleep(15)
     #ESPERA O LOADING PARAR
-    WebDriverWait(driver, 50).until_not(
+    WebDriverWait(driver, 100).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
     )
     print('loading sumiu')
-    
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div')
     
     if(tabelaValor.text != '0,00'):
@@ -368,77 +361,115 @@ def entrarDTE(driver, numeroIncricao, indice):
         )          
         valor.click()
 
-        time.sleep(5)
+        time.sleep(10)
         
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/button'))
         )
 
-        time.sleep(5)          
+        time.sleep(2)          
         download.click()
-    
+        
+        time.sleep(8)
+        
         csvDownload = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-        )
-        time.sleep(5) 
+        ) 
         csvDownload.click()
-        time.sleep(3)
+        time.sleep(8)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="ModalDet"]/div/div/div[1]/button'))
         ) 
         x.click()                                    
         time.sleep(2)
-        
-        temDownload = True
+        return True
+    
     else:
         print('Essa empresa não tem cupons fiscais autorizados até o momento.')
-        temDownload = False
-            
-    return [continuar,temDownload]
+        return False
+    
+    #continuar o codigo aqui Alexandre
+
+def sairDte(driver):
+    perfilA = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/a'))
+    ) 
+    perfilA.click()
+    time.sleep(2)
+    
+    sairA = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/ul/li[2]/div/a'))
+    ) 
+    sairA.click()
+    time.sleep(2)
+    
+    driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+    
+    time.sleep(2)
+    
+    perfildte = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+    )       
+    perfildte.click()
+    time.sleep(3)
+    sairPefildte = WebDriverWait(driver, 30).until(
+    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+    )       
+    sairPefildte.click()
+    
+    time.sleep(2)
     
 def BaixarOsCancelados(driver):
-   
-    
     cancelados = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '/html/body/app-root/div/app-nfce/div/div/section[2]/div/div/div/ul/li[2]/a'))
     ) 
-    cancelados.click()          
+    cancelados.click()
     
+    time.sleep(7)
+             
+    #SELECIONAR MES E ANO
+    selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
+    optionMes = Select(selectMes)
+    optionMes.select_by_index(mes_passado - 1)
+    
+    selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
+    optionAno = Select(selectAno)
+    optionAno.select_by_value(f'{ano}')
+    
+    
+    time.sleep(2)
     pesquisar = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/div[1]/div[1]/button'))
     ) 
-    pesquisar.click()          
-    
+    pesquisar.click()  
+            
+    time.sleep(15)
     #ESPERA O LOADING PARAR
     WebDriverWait(driver, 50).until_not(
     EC.presence_of_element_located((By.CLASS_NAME, 'modal fade in'))
     )
     print('loading sumiu')
-
-    
+           
+    time.sleep(10)
     tabelaValor = driver.find_element(By.XPATH, f'//*[@id="tab_emitidos_outros"]/table/tfoot/tr/td[3]')
     if(tabelaValor.text != '0,00'):
 
         mes = WebDriverWait(driver, 5000).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
-        )
-        time.sleep(5) 
- 
+        ) 
         mes.click()  
-        
+        time.sleep(6)
         download = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/button'))
-        )
-        time.sleep(5)  
+        ) 
         download.click()  
-        
+        time.sleep(8)
         csv = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[2]/div[1]/div/div/ul/li[2]/a'))
-        )
-        time.sleep(5)  
+        ) 
         csv.click()
-        time.sleep(2)
+        time.sleep(8)
         
         x = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="Modal"]/div/div/div[1]/button'))
@@ -475,7 +506,9 @@ def BaixarOsCancelados(driver):
         time.sleep(2)
         
         return True
+        
     else:
+        
         print('Essa empresa não tem cupons fiscais de cancelamento até o momento')
         perfil = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="perfil-empresa"]/li[2]/a'))
@@ -506,8 +539,7 @@ def BaixarOsCancelados(driver):
         sairPefil.click()
         
         time.sleep(2)
-                
-        return False  
+        return False
     
 def tratarCSV(directory, lista):
     # Obtém todos os arquivos CSV no diretório especificado
@@ -723,76 +755,61 @@ def iniciarDownloads(driver):
         print(f"Erro ao encontrar o elemento: {e}")
         return None
 def baixarCancelamento(driver):
-    print('Iniciando download dos cancelamentos')
-    time.sleep(3)
-    # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
-    fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+    try:
+        print('Iniciando download dos cancelamentos')
+        time.sleep(3)
+        # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+        fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
 
-    # Agora encontre o link <a> dentro desse quarto <li>
-    link = fourth_li.find_element(By.TAG_NAME, 'a')
-    
-    
-    link.click()
-    
-    time.sleep(2)
-    
-    limpar = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
-        )
-    limpar.click()
-    
-    tipo = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
-        )
-    tipo.click()
-    
-    time.sleep(0.5)
-    
-    autoit.send('{DOWN}')
-    
-    time.sleep(0.4)
-    
-    autoit.send('{ENTER}')
-    
-    time.sleep(0.4)
-    inicioperiodo = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
-        )
-    time.sleep(0.2)
-    inicioperiodo.send_keys(entradaDataInicio)
-    
-    time.sleep(0.4)
-    finalperiodo = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
-        )
-    time.sleep(0.2)
-    finalperiodo.send_keys(entradaDataFinal)
-    
-    consulta = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
-        )
-    consulta.click()
-    
-    blocos = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/div/button')
-    if blocos:
-        for index, item in enumerate(blocos):
-            if index == len(blocos) - 1:
-                item.click()
-                time.sleep(5)            
-        #testarrrrrr
-        paginas = driver.find_elements(By.XPATH,'//*[@id="conteudo_central"]/div/div/div/div[3]/div/div[2]/div/div/div/ul/li/a')
-        if paginas:
-            for num, item in enumerate(paginas):
-                
-                if num != 0 and num != len(paginas) - 1:
-                    if num != 1:   
-                        item.click()
-                        time.sleep(1)
-                    clicar_links_tabela(driver,0)
-        else:
-            clicar_links_tabela(driver,0)        
-    
-    time.sleep(3)
+        # Agora encontre o link <a> dentro desse quarto <li>
+        link = fourth_li.find_element(By.TAG_NAME, 'a')
+        
+        
+        link.click()
+        
+        time.sleep(2)
+        
+        limpar = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
+            )
+        limpar.click()
+        
+        tipo = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
+            )
+        tipo.click()
+        
+        time.sleep(0.5)
+        
+        autoit.send('{DOWN}')
+        
+        time.sleep(0.4)
+        
+        autoit.send('{ENTER}')
+        
+        time.sleep(0.4)
+        inicioperiodo = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
+            )
+        time.sleep(0.2)
+        inicioperiodo.send_keys(variavel_inicio)
+        
+        time.sleep(0.4)
+        finalperiodo = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
+            )
+        time.sleep(0.2)
+        finalperiodo.send_keys(variavel_final)
+        
+        consulta = WebDriverWait(driver, 200).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
+            )
+        consulta.click()
+        
+        time.sleep(5)
+        
+    except:
+        print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
     
     #SAINDO DO SISTEMA DE FORMA CORRETA
     
@@ -845,9 +862,9 @@ if validacao == True:
         for indice, item in enumerate(listaTotal):
             
             listaCFEtotal.clear()
-            inicio = entrarDTE(driver,item,indice)
-            if inicio[0] == True:
-                if inicio[1]== True:
+            inicio = entrarDTE(driver,item)
+            if inicio == True:
+                if inicio == True:
                     tratarCSV(downloads_directory, 'autorizados')
                     
                 metade = BaixarOsCancelados(driver)
@@ -871,9 +888,11 @@ if validacao == True:
                     print('Empresa não tem cupons, indo para a próxima.')
                     time.sleep(6)
             else:
-                print('Empresa não localizada, indo para próxima empresa.')
+                print('Empresa não tem cupons, indo para a próxima.')
+                sairDte(driver)
             time.sleep(10)        #Saindo do login para depois logar de novo    
-        print('Todos os cupons foram baixados, indo para a proxima empresa')    
+            if inicio == True:
+                print('Todos os cupons baixados, indo para a próxima empresa.')
         
         
         time.sleep(10)
