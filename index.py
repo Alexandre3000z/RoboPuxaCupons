@@ -17,6 +17,34 @@ from datetime import datetime, timedelta
 import calendar
 from login import SENHA, USUARIO
 from organizador import analisadorXmls, organizarPastas
+import requests
+from T import TOKEN
+
+def verificar_arquivo(url, texto_procurado):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Gera um erro se a requisição falhar
+        conteudo = response.text
+        return texto_procurado in conteudo
+    except Exception as e:
+        print(f"Erro ao acessar o arquivo: {e}")
+        return False
+
+# Fluxo principal
+def validarAcesso():
+    
+    url = "https://drive.google.com/uc?export=download&id=1k9Y8YgnsE4KPvQ3_62MdELLj6UhVztsH"
+    texto_procurado = TOKEN
+    
+    if verificar_arquivo(url, texto_procurado):
+        
+        return True
+        # Código autorizado
+    else:
+        # print("Licença não encontrada. Execução não autorizada.")
+        return False
+validacao = validarAcesso()
+
 
 # Data atual
 data_atual = datetime.now()
@@ -779,72 +807,75 @@ def baixarCancelamento(driver):
     time.sleep(5)            
         
         #Saindo do login para depois logar de novo
-   
-    
-# Configuração do Chrome
-service = Service(ChromeDriverManager().install())
-options = uc.ChromeOptions()
 
-# Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
-options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
-options.add_argument("--profile-directory=Default")  # Modifique se necessário
-
-# Configurações para evitar bloqueios
-options.add_argument("--disable-popup-blocking")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--disable-gpu")
-options.add_argument("--allow-running-insecure-content")
-options.add_argument("--ignore-certificate-errors")
-
-# Inicia o navegador
-driver = uc.Chrome(service=service, options=options)
-driver.implicitly_wait(10)
-
-
-    
-try:
-    pegarForAmbiente(driver)
-    for indice, item in enumerate(listaTotal):
+if validacao == True:   
         
-        listaCFEtotal.clear()
-        inicio = entrarDTE(driver,item,indice)
-        if inicio[0] == True:
-            if inicio[1]== True:
-                tratarCSV(downloads_directory, 'autorizados')
-                
-            metade = BaixarOsCancelados(driver)
+    # Configuração do Chrome
+    service = Service(ChromeDriverManager().install())
+    options = uc.ChromeOptions()
+
+    # Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
+    options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
+    options.add_argument("--profile-directory=Default")  # Modifique se necessário
+
+    # Configurações para evitar bloqueios
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--allow-running-insecure-content")
+    options.add_argument("--ignore-certificate-errors")
+
+    # Inicia o navegador
+    driver = uc.Chrome(service=service, options=options)
+    driver.implicitly_wait(10)
+
+
+        
+    try:
+        pegarForAmbiente(driver)
+        for indice, item in enumerate(listaTotal):
             
-            if(metade == True):
-                time.sleep(5)
-                tratarCSV(downloads_directory, 'cancelados')
-            
-            if(inicio == True or metade == True ):
-                # Abra a página desejada
-                driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
-                time.sleep(2)
-                realizar_login(driver)
-                # teste = "69077339"
-                iniciar_processo(driver, item)
-                # Aguarda o F2 e tenta localizar o elemento na nova aba
-                iniciarDownloads(driver)
-                baixarCancelamento(driver)
+            listaCFEtotal.clear()
+            inicio = entrarDTE(driver,item,indice)
+            if inicio[0] == True:
+                if inicio[1]== True:
+                    tratarCSV(downloads_directory, 'autorizados')
+                    
+                metade = BaixarOsCancelados(driver)
                 
+                if(metade == True):
+                    time.sleep(5)
+                    tratarCSV(downloads_directory, 'cancelados')
+                
+                if(inicio == True or metade == True ):
+                    # Abra a página desejada
+                    driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+                    time.sleep(2)
+                    realizar_login(driver)
+                    # teste = "69077339"
+                    iniciar_processo(driver, item)
+                    # Aguarda o F2 e tenta localizar o elemento na nova aba
+                    iniciarDownloads(driver)
+                    baixarCancelamento(driver)
+                    
+                else:
+                    print('Empresa não tem cupons, indo para a próxima.')
+                    time.sleep(6)
             else:
-                print('Empresa não tem cupons, indo para a próxima.')
-                time.sleep(6)
-        else:
-            print('Empresa não localizada, indo para próxima empresa.')
-        time.sleep(10)        #Saindo do login para depois logar de novo    
-    print('Todos os cupons foram baixados, indo para a proxima empresa')    
-    
-    
+                print('Empresa não localizada, indo para próxima empresa.')
+            time.sleep(10)        #Saindo do login para depois logar de novo    
+        print('Todos os cupons foram baixados, indo para a proxima empresa')    
+        
+        
+        time.sleep(10)
+
+    finally:
+        print('Fechando navegador')
+        # Feche o navegador após a execução
+        driver.quit()
+
+    time.sleep(2)
+    print("Processo finalizado... ")
     time.sleep(10)
-
-finally:
-    print('Fechando navegador')
-    # Feche o navegador após a execução
-    driver.quit()
-
-time.sleep(2)
-print("Processo finalizado... ")
-time.sleep(10)
+else:
+    print('A chave de licença do software é inválida, por gentileza, entre em contato com o responsável.')
