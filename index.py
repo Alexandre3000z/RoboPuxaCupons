@@ -855,8 +855,44 @@ def baixarCancelamento(driver):
         time.sleep(5)
         
     except:
+        
         print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
-
+        
+        #SAINDO DO SISTEMA DE FORMA CORRETA
+        
+        sair2 = WebDriverWait(driver, 50).until(
+            EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+        )
+        
+        sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+        sair2Sim.click()
+        
+        time.sleep(3)
+        
+        sairConfirma = WebDriverWait(driver, 50).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+        )
+        
+        sairConfirma.click()
+        time.sleep(3)
+        driver.get('https://www.sefaz.ce.gov.br/ambiente-seguro/')
+        
+        time.sleep(2)
+        
+        login = WebDriverWait(driver, 50).until(
+            EC.presence_of_element_located((By.XPATH , '//*[@id="main"]/section/div/div/ul/li[1]/a'))
+        )
+        login.click()
+        
+        time.sleep(3)
+        
+        sairAS = WebDriverWait(driver,50).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="textoContainer"]/form/table/tbody/tr[2]/td/input'))
+        )
+        sairAS.click()
+        
+        time.sleep(5)            
+        
   
 #O CÓDIGO COMEÇA A SER EXECUTADO AQUI    
 if validacao == True:    
