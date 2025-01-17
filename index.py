@@ -324,15 +324,14 @@ def entrarDTE(driver, numeroIncricao):
     )          
     NfeCfe.click()
     
-    time.sleep(3)
-    
-   
-    time.sleep(5)
+    time.sleep(8)
     
     #SELECIONAR MES E ANO
     selectMes = driver.find_element(By.XPATH, '//*[@id="mes_select"]')
     optionMes = Select(selectMes)
     optionMes.select_by_index(mes_passado - 1)
+    
+    time.sleep(1)
     
     selectAno = driver.find_element(By.XPATH, '//*[@id="ano_select"]')
     optionAno = Select(selectAno)
@@ -681,6 +680,13 @@ def iniciar_processo(driver, inscricaoEstadual):
 
 def comeca_consulta(driver, cfe):
     
+    try:
+        WebDriverWait(driver, 15).until((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[1]/h4'))
+        print('ENCONTROU O AVISO')
+        time.sleep(1000)
+    except:
+        print('Tudo okkkk')    
+        
     # Localização do elemento
     element_locator = (By.CSS_SELECTOR, "div.modal-backdrop.am-fade")
 
@@ -691,7 +697,9 @@ def comeca_consulta(driver, cfe):
         )
         print("O elemento adquiriu a classe 'ng-hide'.")
     except Exception as e:
+        driver.refresh()
         print("Timeout: o elemento não adquiriu a classe 'ng-hide' dentro do tempo esperado.")
+        time.sleep(5)
         
     # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
     fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
@@ -729,10 +737,10 @@ def iniciarDownloads(driver):
     abas = driver.window_handles
 
     # Certifica-se de que há pelo menos 3 abas abertas
-    if len(abas) >= 2:
+    if len(abas) >= 3:
         driver.close()
 
-        driver.switch_to.window(abas[1])  
+        driver.switch_to.window(abas[2])  
     else:
         print("A segunda aba não foi encontrada.")
 
@@ -810,27 +818,61 @@ def baixarCancelamento(driver):
         
     except:
         print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
-    
-    #SAINDO DO SISTEMA DE FORMA CORRETA
-    
-    sair2 = WebDriverWait(driver, 50).until(
-        EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
-    )
-    
-    sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
-    sair2Sim.click()
-    
-    time.sleep(3)
-    
-    sairConfirma = WebDriverWait(driver, 50).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
-    )
-    
-    sairConfirma.click() 
-    
-    time.sleep(5)            
+     
+def sairAmbienteSeguro(driver):
+    try:
+        try:
+            # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+            fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+            # Agora encontre o link <a> dentro desse quarto <li>
+            link = fourth_li.find_element(By.TAG_NAME, 'a')
+            
+            
+            link.click()
+            
+            time.sleep(3)
+            
+            #SAINDO DO SISTEMA DE FORMA CORRETA
+            
+            sair2 = WebDriverWait(driver, 50).until(
+                EC.presence_of_all_elements_located((By.XPATH, '//*[@id="menulist_root"]/div[5]/li')) 
+            )
+            
+            sair2Sim = sair2[1].find_element(By.TAG_NAME, 'a')
+            sair2Sim.click()
+            
+            time.sleep(3)
+            
+            sairConfirma = WebDriverWait(driver, 50).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button[1]')) 
+            )
+            
+            sairConfirma.click()
+            time.sleep(3)
+        except:
+            print('Indo para etapa 2 DA SAIDA AMBIENTE SEGURO ')   
+            
+             
+        driver.get('https://www.sefaz.ce.gov.br/ambiente-seguro/')
         
-        #Saindo do login para depois logar de novo
+        time.sleep(2)
+        
+        login = WebDriverWait(driver, 50).until(
+            EC.presence_of_element_located((By.XPATH , '//*[@id="main"]/section/div/div/ul/li[1]/a'))
+        )
+        login.click()
+        
+        time.sleep(3)
+        
+        sairAS = WebDriverWait(driver,50).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="textoContainer"]/form/table/tbody/tr[2]/td/input'))
+        )
+        sairAS.click()
+        
+    except:
+        
+        print('Ambiente seguro já foi desconectado de forma correta, continuando')    
 
 if validacao == True:   
     try:    
@@ -883,7 +925,7 @@ if validacao == True:
                     # Aguarda o F2 e tenta localizar o elemento na nova aba
                     iniciarDownloads(driver)
                     baixarCancelamento(driver)
-                    
+                    sairAmbienteSeguro(driver)
                 else:
                     print('Empresa não tem cupons, indo para a próxima.')
                     time.sleep(6)
