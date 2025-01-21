@@ -659,6 +659,13 @@ def iniciar_processo(driver, inscricaoEstadual):
         WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
         )
+        
+        try:
+            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[1]/h4')))
+            print('ENCONTROU O AVISO')
+            time.sleep(1000)
+        except:
+            print('Tudo okkkk')   
 
         #Lista das linhas
         linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
@@ -678,14 +685,7 @@ def iniciar_processo(driver, inscricaoEstadual):
             
                 
 
-def comeca_consulta(driver, cfe):
-    
-    try:
-        WebDriverWait(driver, 15).until((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[1]/h4'))
-        print('ENCONTROU O AVISO')
-        time.sleep(1000)
-    except:
-        print('Tudo okkkk')    
+def comeca_consulta(driver, cfe): 
         
     # Localização do elemento
     element_locator = (By.CSS_SELECTOR, "div.modal-backdrop.am-fade")
@@ -902,7 +902,7 @@ if validacao == True:
     try:
         pegarForAmbiente(driver)
         for indice, item in enumerate(listaTotal):
-            
+            print(f'Atualizado {indice} de {len(listaTotal)} empresas...')
             listaCFEtotal.clear()
             inicio = entrarDTE(driver,item)
             if inicio == True:
@@ -922,7 +922,6 @@ if validacao == True:
                     realizar_login(driver)
                     # teste = "69077339"
                     iniciar_processo(driver, item)
-                    # Aguarda o F2 e tenta localizar o elemento na nova aba
                     iniciarDownloads(driver)
                     baixarCancelamento(driver)
                     sairAmbienteSeguro(driver)
