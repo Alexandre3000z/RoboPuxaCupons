@@ -1069,8 +1069,9 @@ if validacao == True:
             
             
             time.sleep(10)
-        except:
-            print('Erro detectado, finalizando o programa...')    
+        except Exception as e:
+            print('Erro detectado, finalizando o programa...')
+            print(f'{e}')    
 
     finally:
     
