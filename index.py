@@ -103,7 +103,8 @@ print('Arquivos serão baixados em: ',downloads_directory)
 def pegarForAmbiente(driver):
     driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
     time.sleep(2)
-    driver.fullscreen_window()
+    autoit.send('{F11}')
+    time.sleep(1)
     realizar_login(driver)
     
     selectMFE = WebDriverWait(driver, 20).until(
