@@ -960,8 +960,15 @@ if validacao == True:
         service = Service(ChromeDriverManager().install())
         options = uc.ChromeOptions()
 
-        # Adiciona o caminho para o perfil do Chrome que contém as extensões instaladas
-        options.add_argument("--user-data-dir=C:/Users/ADM/AppData/Local/Google/Chrome/User Data")
+        
+        # Obtém o caminho para a pasta do usuário
+        user_data_dir = os.path.join(
+            os.path.expanduser("~"), 
+            "AppData", "Local", "Google", "Chrome", "User Data"
+        )
+
+        # Adiciona o argumento ao Selenium
+        options.add_argument(f"--user-data-dir={user_data_dir}")
         options.add_argument("--profile-directory=Default")  # Modifique se necessário
 
         # Configurações para evitar bloqueios
