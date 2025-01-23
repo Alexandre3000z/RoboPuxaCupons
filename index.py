@@ -971,7 +971,6 @@ if validacao == True:
         # Adiciona o argumento ao Selenium
         options.add_argument(f"--user-data-dir={user_data_dir}")
         options.add_argument("--profile-directory=Default")  # Modifique se necessário
-        options.add_argument("--start-maximized")
         # Configurações para evitar bloqueios
         options.add_argument("--disable-popup-blocking")
         options.add_argument("--disable-blink-features=AutomationControlled")
