@@ -660,12 +660,6 @@ def iniciar_processo(driver, inscricaoEstadual):
         EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
         )
         
-        try:
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[1]/h4')))
-            print('ENCONTROU O AVISO')
-            time.sleep(1000)
-        except:
-            print('Tudo okkkk')   
 
         #Lista das linhas
         linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
@@ -682,7 +676,8 @@ def iniciar_processo(driver, inscricaoEstadual):
                 celula.click()
                 print('Inscrição estadual: ',texto_da_celula,' Empresa: ', textoNome)
                 break
-            
+        
+              
                 
 
 def comeca_consulta(driver, cfe): 
@@ -731,8 +726,9 @@ def comeca_consulta(driver, cfe):
     
 
   #PASSO 3 AMBIENTE SEGURO                     
-def iniciarDownloads(driver):
-    time.sleep(13)    
+def iniciarDownloads(driver, inscricao):
+    time.sleep(13)
+    
     # Captura as abas abertas no navegador
     abas = driver.window_handles
 
@@ -741,83 +737,167 @@ def iniciarDownloads(driver):
         driver.close()
 
         driver.switch_to.window(abas[2])  
+        
+        
     else:
         print("A segunda aba não foi encontrada.")
 
-        
     try:
-        # print('esses são os xmls atuais',listaCFEtotal[2:10])
+        
+        try:
+            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[1]/h4')))
+            print('ENCONTROU O AVISO')
+            
+            button100 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH , '//*[@id="conteudo_central"]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/div/button[4]')))
+            button100.click()
+            
+            tabelaAvisos = driver.find_elements(By.XPATH, '//*[@id="table-mfes-list"]/tbody/tr/td/div/a')
+            for item in tabelaAvisos:
+                time.sleep(1)
+                item.click()
+                time.sleep(2)
+                driver.find_element(By.XPATH, '//*[@id="mfe-manufacturer-detail"]/div[3]/button').click()
+            time.sleep(2)
+            fechar = driver.find_element(By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button')
+            fechar.click()
+            time.sleep(3)
+        except:
+            print('Tudo okkkk') 
+            
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
-            comeca_consulta(driver,cupom)
-            
-            clicar_links_tabela(driver, index)            
-            # Mostrar o progresso
-            print(f"Baixando {index} de {len(analisexml)}")
-            
-            # Aqui você coloca o processamento para cada item
-            # Por exemplo:
-            print(f"Processando: {cupom}")
+            try:
+                if index % 1998 == 0:
+                    sairAmbienteSeguro(driver)
+                    time.sleep(2)
+                    driver.get('https://servicos.sefaz.ce.gov.br/internet/acessoseguro/servicosenha/logarusuario/login.asp')
+                    time.sleep(2)
+                    realizar_login(driver)
+                    
+                    iniciar_processo(driver, inscricao)
+                    time.sleep(10)
+                    print('ERA PARA ELE MUDAR AS ABASSSSS')
+                    # Lista todas as janelas/abas abertas
+                    window_handles = driver.window_handles
+
+                    # Mantém apenas a última aba aberta
+                    for handle in window_handles[:-1]:
+                        driver.switch_to.window(handle)
+                        driver.close()
+
+                    # Troca para a última aba
+                    driver.switch_to.window(window_handles[-1])
+                    
+                # Lógica de atualização e limpeza de cache
+                if index % 50 == 0:  # A cada 50 itens
+                    
+                    print("Limpando o cache e atualizando a página...")
+                    
+                    autoit.send("^+r")
+                    time.sleep(3)
+                    driver.refresh()
+                    time.sleep(7)
+                    print("Página recarregada com cache limpo.")
+                    
+                # Continue com as operações normais no loop
+                time.sleep(0.1)  # Simulação de tempo entre iterações
+                comeca_consulta(driver,cupom)
+                
+                clicar_links_tabela(driver, index)            
+                # Mostrar o progresso
+                print(f"Baixando {index} de {len(analisexml)}")
+                
+                
+                # Aqui você coloca o processamento para cada item
+                # Por exemplo:
+                print(f"Processando: {cupom}")
+            except Exception as e:
+                print(f"O {index} foi interrompido, tentando corrigir problema.")
+                driver.refresh()
+                time.sleep(15)  # Simulação de tempo entre iterações
+                comeca_consulta(driver,cupom)
+                
+                clicar_links_tabela(driver)            
+                # Mostrar o progresso
+                
+                
+                # Aqui você coloca o processamento para cada item
+                # Por exemplo:
+                print(f"Processando: {cupom}")
+                    
             
     except Exception as e:
-        print(f"Erro ao encontrar o elemento: {e}")
+        print(f"Erro de carregamento infinito, o ambiente seguro está instável")
+         
         return None
-def baixarCancelamento(driver):
-    try:
-        print('Iniciando download dos cancelamentos')
-        time.sleep(3)
-        # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
-        fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+    
+    if len(analisexml) == 0:
+        return False
+    else:
+        return True
+        
 
-        # Agora encontre o link <a> dentro desse quarto <li>
-        link = fourth_li.find_element(By.TAG_NAME, 'a')
-        
-        
-        link.click()
-        
-        time.sleep(2)
-        
-        limpar = WebDriverWait(driver, 200).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
-            )
-        limpar.click()
-        
-        tipo = WebDriverWait(driver, 200).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
-            )
-        tipo.click()
-        
-        time.sleep(0.5)
-        
-        autoit.send('{DOWN}')
-        
-        time.sleep(0.4)
-        
-        autoit.send('{ENTER}')
-        
-        time.sleep(0.4)
-        inicioperiodo = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
-            )
-        time.sleep(0.2)
-        inicioperiodo.send_keys(variavel_inicio)
-        
-        time.sleep(0.4)
-        finalperiodo = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
-            )
-        time.sleep(0.2)
-        finalperiodo.send_keys(variavel_final)
-        
-        consulta = WebDriverWait(driver, 200).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
-            )
-        consulta.click()
-        
-        time.sleep(5)
-        
-    except:
-        print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
+def baixarCancelamento(driver, decisao):
+    if decisao:
+        try:
+            print('Iniciando download dos cancelamentos')
+            time.sleep(3)
+            # Encontre a quarta <li> dentro da ul com o id 'menulist_root'
+            fourth_li = driver.find_element(By.XPATH, '//*[@id="menulist_root"]/li[4]')
+
+            # Agora encontre o link <a> dentro desse quarto <li>
+            link = fourth_li.find_element(By.TAG_NAME, 'a')
+            
+            
+            link.click()
+            
+            time.sleep(2)
+            
+            limpar = WebDriverWait(driver, 200).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[2]'))
+                )
+            limpar.click()
+            
+            tipo = WebDriverWait(driver, 200).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[3]/div/div/div/div/div[1]/span'))
+                )
+            tipo.click()
+            
+            time.sleep(0.5)
+            
+            autoit.send('{DOWN}')
+            
+            
+            time.sleep(0.4)
+            
+            autoit.send('{ENTER}')
+            
+            time.sleep(0.4)
+            inicioperiodo = WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="form-start-date-search-coupons"]'))
+                )
+            time.sleep(0.2)
+            inicioperiodo.send_keys(variavel_inicio)
+            
+            time.sleep(0.4)
+            finalperiodo = WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="form-end-date-search-coupons"]'))
+                )
+            time.sleep(0.2)
+            finalperiodo.send_keys(variavel_final)
+            
+            consulta = WebDriverWait(driver, 200).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="conteudo_central"]/div/div/div/div[3]/form/div[6]/div/div/button[1]'))
+                )
+            consulta.click()
+            
+            time.sleep(5)
+            
+        except:
+            print('Erro ao baixar os cupons de cancelamento, ambiente seguro instável')
+    
+    else:
+        return None        
      
 def sairAmbienteSeguro(driver):
     try:
@@ -902,7 +982,7 @@ if validacao == True:
     try:
         pegarForAmbiente(driver)
         for indice, item in enumerate(listaTotal):
-            print(f'Atualizado {indice} de {len(listaTotal)} empresas...')
+            print(f'Atualizado {indice + 1} de {len(listaTotal)} empresas...')
             listaCFEtotal.clear()
             inicio = entrarDTE(driver,item)
             if inicio == True:
@@ -922,8 +1002,8 @@ if validacao == True:
                     realizar_login(driver)
                     # teste = "69077339"
                     iniciar_processo(driver, item)
-                    iniciarDownloads(driver)
-                    baixarCancelamento(driver)
+                    continueC = iniciarDownloads(driver, item)
+                    baixarCancelamento(driver, continueC)
                     sairAmbienteSeguro(driver)
                 else:
                     print('Empresa não tem cupons, indo para a próxima.')
@@ -931,12 +1011,12 @@ if validacao == True:
             else:
                 print('Empresa não tem cupons, indo para a próxima.')
                 sairDte(driver)
-            time.sleep(10)        #Saindo do login para depois logar de novo    
+            time.sleep(5)        #Saindo do login para depois logar de novo    
             if inicio == True:
                 print('Todos os cupons baixados, indo para a próxima empresa.')
         
         
-        time.sleep(10)
+        time.sleep(5)
 
     finally:
         print('Fechando navegador')
