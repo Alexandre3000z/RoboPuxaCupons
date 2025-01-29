@@ -178,10 +178,15 @@ def pegarForAmbiente(driver):
     for linha in LinhasTabela:
         cells = linha.find_elements(By.TAG_NAME, 'td')
         inscricao = cells[1].text
+        situacao = cells[5].text
         numero_formatado = inscricao.replace('.', '').replace('-', '')
-        listaEscricoesDTE.append(numero_formatado)
+        if situacao == 'Válida':
+            listaEscricoesDTE.append(numero_formatado)
     print('Foram registradas ',len(listaEscricoesDTE), ' empresas na SEFAZ DTE')    
     listafiltrada  = [numero for numero in listaEscricoesAS if numero in listaEscricoesDTE]
+    
+    
+    
     listaTotal.extend(listafiltrada)
     print('Feito a filtragem DTE > AMBIENTE SEGURO: ', len(listafiltrada), ' empresas tem procuração nas duas aplicações.')
 
