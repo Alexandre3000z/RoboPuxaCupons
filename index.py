@@ -284,24 +284,35 @@ def entrarDTE(driver, numeroIncricao):
         time.sleep(12)        
         siget.click()
     except:
-        print('A empresa não possui procuração no DTE, fazer procuração e tentar novamente...')
-        
-        driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
-        
-        time.sleep(2)
-        
-        perfildte = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
-        )       
-        perfildte.click()
-        time.sleep(3)
-        sairPefildte = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
-        )       
-        sairPefildte.click()
-        
-        time.sleep(2)
-        return None
+        try:
+            print('Possivel carregamento infinito siget, tentando novamente...')
+            driver.refresh()
+            time.sleep(5)
+            siget = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-home/section/div/div[2]/div/ul/li[1]'))
+            )
+            time.sleep(12)        
+            siget.click()
+            
+        except:
+            print('O DTE está instável. tentar novamente mais tarde...')
+            
+            driver.get('https://portal-dte.sefaz.ce.gov.br/#/home')
+            
+            time.sleep(2)
+            
+            perfildte = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div/div/nav/ul/li[3]/a'))
+            )       
+            perfildte.click()
+            time.sleep(3)
+            sairPefildte = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/header/div[2]/div/nav/ul/li[2]/div/button'))
+            )       
+            sairPefildte.click()
+            
+            time.sleep(2)
+            return None
     
     time.sleep(12)
     autoit.send('{ENTER}')
