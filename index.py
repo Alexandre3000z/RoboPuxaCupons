@@ -101,95 +101,100 @@ downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
 print('Arquivos serão baixados em: ',downloads_directory)
 
 def pegarForAmbiente(driver):
-    driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
-    time.sleep(2)
-    autoit.send('{F11}')
-    time.sleep(1)
-    realizar_login(driver)
-    
-    selectMFE = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="listaservico"]/li[11]/a'))
+    try:
+        driver.get("https://servicos.sefaz.ce.gov.br/internet/AcessoSeguro/ServicoSenha/logarusuario/login.asp")
+        time.sleep(2)
+        autoit.send('{F11}')
+        time.sleep(1)
+        realizar_login(driver)
+        
+        selectMFE = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="listaservico"]/li[11]/a'))
+            )
+        selectMFE.click()
+        
+        acessarMFE = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="menu_dir"]/ul/li/a'))
         )
-    selectMFE.click()
-    
-    acessarMFE = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="menu_dir"]/ul/li/a'))
-    )
-    acessarMFE.click()
-    
-    # Aguarde a tabela carregar
-    WebDriverWait(driver, 20).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
-    )
+        acessarMFE.click()
+        
+        # Aguarde a tabela carregar
+        WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/table'))
+        )
 
-    #Lista das linhas
-    linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
-    print('2 segundos')
-    time.sleep(2)
-    for linha in linhas:
-        inscricao = linha.find_element(By.XPATH, './td[1]')
-        celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
-        textoNome = celulaNome.text
-        texto_da_celula = f'0{inscricao.text}'
-        listaEscricoesAS.append(texto_da_celula)
+        #Lista das linhas
+        linhas = driver.find_elements(By.XPATH, '//*[@id="form1"]/table/tbody/tr')
+        print('2 segundos')
+        time.sleep(2)
+        for linha in linhas:
+            inscricao = linha.find_element(By.XPATH, './td[1]')
+            celulaNome = linha.find_element(By.XPATH, './td[2]') # Ajustar índice conforme necessário
+            textoNome = celulaNome.text
+            texto_da_celula = f'0{inscricao.text}'
+            listaEscricoesAS.append(texto_da_celula)
+        
+        del listaEscricoesAS[0]
+        print('Foram registradas ',len(listaEscricoesAS), 'empresas no ambiente seguro')    
+        
+        saida = WebDriverWait(driver,20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="usuarioLog"]/a[2]'))
+        )
+        saida.click()
+        
+        time.sleep(5)
+    except:
+        print('AMBIENTE SEGURO INSTÁVEL')   
     
-    del listaEscricoesAS[0]
-    print('Foram registradas ',len(listaEscricoesAS), 'empresas no ambiente seguro')    
-    
-    saida = WebDriverWait(driver,20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="usuarioLog"]/a[2]'))
-    )
-    saida.click()
-    
-    time.sleep(5)
-    
-    driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
-    
-    time.sleep(5)
-    inicio = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-index/div/div/div[2]/div[1]/div/div/a[1]/div'))
-    )
-                
-    inicio.click()
-    
-    time.sleep(3)
-     
-    selecaoC = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
-    )
-                
-    selecaoC.click()
+    try:
+        driver.get("https://portal-dte.sefaz.ce.gov.br/#/index")
+        
+        time.sleep(5)
+        inicio = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-index/div/div/div[2]/div[1]/div/div/a[1]/div'))
+        )
+                    
+        inicio.click()
+        
+        time.sleep(3)
+        
+        selecaoC = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-certificado/div/ul/li/button'))
+        )
+                    
+        selecaoC.click()
 
-    time.sleep(3)
-    ativo = WebDriverWait(driver, 300).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
-    )        
-    ativo.click()
+        time.sleep(3)
+        ativo = WebDriverWait(driver, 300).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[1]/table/tbody/tr/td[1]'))
+        )        
+        ativo.click()
 
-    time.sleep(1)
+        time.sleep(1)
 
-    botaoEntrar = WebDriverWait(driver, 30).until(
-    EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
-    )          
-    botaoEntrar.click()
-    time.sleep(1)
-    LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-    
-    for linha in LinhasTabela:
-        cells = linha.find_elements(By.TAG_NAME, 'td')
-        inscricao = cells[1].text
-        situacao = cells[5].text
-        numero_formatado = inscricao.replace('.', '').replace('-', '')
-        if situacao == 'Válida':
-            listaEscricoesDTE.append(numero_formatado)
-    print('Foram registradas ',len(listaEscricoesDTE), ' empresas na SEFAZ DTE')    
-    listafiltrada  = [numero for numero in listaEscricoesAS if numero in listaEscricoesDTE]
-    
-    
-    
-    listaTotal.extend(listafiltrada)
-    print('Feito a filtragem DTE > AMBIENTE SEGURO: ', len(listafiltrada), ' empresas tem procuração nas duas aplicações.')
-
+        botaoEntrar = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-perfil/div/div[2]/button[2]'))
+        )          
+        botaoEntrar.click()
+        time.sleep(1)
+        LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
+        
+        for linha in LinhasTabela:
+            cells = linha.find_elements(By.TAG_NAME, 'td')
+            inscricao = cells[1].text
+            situacao = cells[5].text
+            numero_formatado = inscricao.replace('.', '').replace('-', '')
+            if situacao == 'Válida':
+                listaEscricoesDTE.append(numero_formatado)
+        print('Foram registradas ',len(listaEscricoesDTE), ' empresas na SEFAZ DTE')    
+        listafiltrada  = [numero for numero in listaEscricoesAS if numero in listaEscricoesDTE]
+        
+        
+        
+        listaTotal.extend(listafiltrada)
+        print('Feito a filtragem DTE > AMBIENTE SEGURO: ', len(listafiltrada), ' empresas tem procuração nas duas aplicações.')
+    except:
+        print('PORTAL DTE INSTÁVEL')   
 
 def entrarDTE(driver, numeroIncricao):
     # Verifica se o número tem 9 dígitos
@@ -1048,7 +1053,8 @@ if validacao == True:
         
         
         time.sleep(5)
-
+    except Exception as e:
+        print('Ambiente seguro ou DTE estão instáveis, tente novamente mais tarde...')
     finally:
         print('Fechando navegador')
         # Feche o navegador após a execução
