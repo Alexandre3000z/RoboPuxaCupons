@@ -759,17 +759,23 @@ def iniciarDownloads(driver, inscricao):
             button100.click()
             
             tabelaAvisos = driver.find_elements(By.XPATH, '//*[@id="table-mfes-list"]/tbody/tr/td/div/a')
-            for item in tabelaAvisos:
-                time.sleep(1)
-                item.click()
-                time.sleep(2)
-                driver.find_element(By.XPATH, '//*[@id="mfe-manufacturer-detail"]/div[3]/button').click()
+            quantidade = len(tabelaAvisos)
+            print(f'{quantidade} avisos indentificados, fazendo limpeza...')
+            
+            for index in range(quantidade):
+                tabelaAvisosAtual = driver.find_elements(By.XPATH, '//*[@id="table-mfes-list"]/tbody/tr/td/div/a')
+                for item in tabelaAvisosAtual:
+                    time.sleep(1)
+                    item.click()
+                    time.sleep(2)
+                    driver.find_element(By.XPATH, '//*[@id="mfe-manufacturer-detail"]/div[3]/button').click()
+                    time.sleep(2)
             time.sleep(2)
             fechar = driver.find_element(By.XPATH, '//*[@id="conteudo_central"]/div/div[2]/div/div/div[3]/button')
             fechar.click()
             time.sleep(3)
         except:
-            print('Tudo okkkk') 
+            print('Nenhum alerta no ambiente seguro') 
             
         analisexml = analisadorXmls(listaCFEtotal)
         for index, cupom in enumerate (analisexml, start=1):
