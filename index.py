@@ -830,7 +830,7 @@ def iniciarDownloads(driver, inscricao):
                 time.sleep(15)  # Simulação de tempo entre iterações
                 comeca_consulta(driver,cupom)
                 
-                clicar_links_tabela(driver)            
+                clicar_links_tabela(driver, index)            
                 # Mostrar o progresso
                 
                 
@@ -1023,6 +1023,7 @@ if validacao == True:
                     iniciar_processo(driver, item)
                     continueC = iniciarDownloads(driver, item)
                     baixarCancelamento(driver, continueC)
+                    clicar_links_tabela(driver, indice)
                     sairAmbienteSeguro(driver)
                 else:
                     print('Empresa não tem cupons, indo para a próxima.')
