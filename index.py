@@ -332,7 +332,8 @@ def entrarDTE(driver, numeroIncricao):
     if(tabelaValor.text != '0,00'):
         valor = WebDriverWait(driver, 500).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos"]/table/tbody[1]/tr/td[3]/div/a'))
-        )          
+        )
+        time.sleep(10)          
         valor.click()
 
         time.sleep(10)
@@ -403,6 +404,7 @@ def BaixarOsCancelados(driver):
         mes = WebDriverWait(driver, 5000).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="tab_emitidos_outros"]/table/tbody/tr/td[3]/div/a'))
         ) 
+        time.sleep(12)
         mes.click()  
         time.sleep(6)
         download = WebDriverWait(driver, 30).until(
