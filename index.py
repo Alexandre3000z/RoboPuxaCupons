@@ -319,7 +319,7 @@ def entrarDTE(driver, numeroIncricao):
             time.sleep(2)
             return None
     
-    time.sleep(12)
+    time.sleep(20)
     autoit.send('{ENTER}')
     time.sleep(5)
     autoit.send('{ENTER}')
