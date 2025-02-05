@@ -647,7 +647,7 @@ def comeca_consulta(driver, cfe):
         WebDriverWait(driver, 150).until(
             lambda driver: "ng-hide" in driver.find_element(*element_locator).get_attribute("class")
         )
-        print("O elemento adquiriu a classe 'ng-hide'.")
+        print("")
     except Exception as e:
         print("Timeout: o elemento não adquiriu a classe 'ng-hide' dentro do tempo esperado.")
         
