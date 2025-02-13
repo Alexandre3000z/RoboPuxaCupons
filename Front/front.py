@@ -2,6 +2,7 @@ import customtkinter as ctk
 from PIL import Image
 from tkinter import messagebox
 
+from main import openMainPage
 # Dados de autenticação (usuário e senha)
 USUARIO_CORRETO = "admin"
 SENHA_CORRETA = "1234"
@@ -12,43 +13,12 @@ def checkLogin():
     senha = senha_entry.get()
     
     if usuario == USUARIO_CORRETO and senha == SENHA_CORRETA:
-        openMainPage()
+        openMainPage(root)
     else:
         messagebox.showerror("Erro de Login", "Usuário ou senha incorretos!")
 
 
-def openMainPage():
-    # Fecha a janela de login
-    root.destroy()
 
-    # Cria a nova janela principal
-    mainPage = ctk.CTk()
-    mainPage.title("Main Page")
-    mainPage.geometry("1280x720")
-    mainPage.configure(fg_color="#25412D")
-
-    # Texto de boas-vindas
-    welcomeLabel = ctk.CTkLabel(mainPage, text="Automação de Cupons", 
-                                font=("Arial", 38, "bold"), text_color="white")
-    welcomeLabel.pack(pady=50)
-    
-   # Frame principal que segura os dois lados
-    mainPage_frame = ctk.CTkFrame(mainPage, width=1200, height=600, corner_radius=20, fg_color='#25412D')
-    mainPage_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-    # Frame da esquerda (não visível, mas organiza o conteúdo)
-    MainLeft_frame = ctk.CTkFrame(mainPage_frame, fg_color="transparent")
-    MainLeft_frame.pack(side="left", fill="both", expand=True, padx=20, pady=120)
-
-    # Frame da direita (não visível, mas organiza o conteúdo)
-    MainRight_frame = ctk.CTkFrame(mainPage_frame, fg_color="transparent")
-    MainRight_frame.pack(side="right", fill="both", expand=True, padx=20, pady=20)
-    # Botão para sair do app
-    MainexitButton = ctk.CTkButton(mainPage, text="Exit", command=mainPage.quit)
-    MainexitButton.pack(pady=20)
-
-    # Executa a nova janela
-    mainPage.mainloop()
 
 
 
