@@ -226,20 +226,23 @@ def entrarDTE(driver, numeroIncricao):
     )          
     botaoEntrar.click()
     time.sleep(15)
-    LinhasTabela = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr')
-
-    for linha in LinhasTabela:
-        cells = linha.find_elements(By.TAG_NAME, 'td')
-        inscricao = cells[1].text
     
-    
-        if(numero_formatado == inscricao):
-            linha.click()
-            time.sleep(5)
-
-            
-    
+    try:
+        inputIE = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/form/div/div[1]/input')) 
+        )
+        inputIE.send_keys(numero_formatado)
         
+        time.sleep(3)
+        
+        selectionIE = driver.find_element(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[2]/table/tbody/tr[1]')
+        selectionIE.click()
+        
+        time.sleep(1)        
+    except:
+        print('A empresa não se encontra no DTE, criar procuração e tentar novamente.')
+        return None
+    
     confirma = driver.find_elements(By.XPATH, '/html/body/my-app/div/div/div/app-procuracao/div/div[3]/button')              
     botaoEntrar2 = confirma[1]
     botaoEntrar2.click()
