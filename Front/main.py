@@ -36,8 +36,7 @@ def openMainPage(lastPage):
                                   height=600, 
                                   corner_radius=20, 
                                   fg_color='#25412D',
-                                  border_width=1,
-                                  border_color='black')
+                                  )
     
     mainPage_frame.pack(fill="both", 
                         expand=True, 
@@ -50,8 +49,7 @@ def openMainPage(lastPage):
     # Frame da esquerda (não visível, mas organiza o conteúdo)
     MainLeft_frame = ctk.CTkFrame(mainPage_frame, 
                                   fg_color="transparent",
-                                  border_width=1,
-                                  border_color='black'
+                                  
                                   )
     
     MainLeft_frame.pack(side="left", 
@@ -119,7 +117,7 @@ def openMainPage(lastPage):
     #-------------- CAMPO MÊS --------------# 
    
     # Frame individual para o Mês
-    month_frame = ctk.CTkFrame(date_frame, fg_color="transparent", border_color='black', border_width=1)
+    month_frame = ctk.CTkFrame(date_frame, fg_color="transparent")
     month_frame.pack(side="left", padx=0)
 
     # Título Mês
@@ -142,7 +140,7 @@ def openMainPage(lastPage):
     #-------------- CAMPO ANO --------------# 
     
     # Frame individual para o Ano
-    year_frame = ctk.CTkFrame(date_frame, fg_color="transparent", border_color='black', border_width=1)
+    year_frame = ctk.CTkFrame(date_frame, fg_color="transparent")
     year_frame.pack(side="left", padx=0)
 
     # Título Ano
@@ -170,8 +168,7 @@ def openMainPage(lastPage):
     # Frame da direita (não visível, mas organiza o conteúdo)
     MainRight_frame = ctk.CTkFrame(mainPage_frame, 
                                    fg_color="transparent",
-                                   border_width=1,
-                                   border_color='black')
+                                   )
     
     MainRight_frame.pack(side="right", 
                          fill="both", 
@@ -188,28 +185,49 @@ def openMainPage(lastPage):
     
     OptionsTittleLabel.pack(anchor='w', pady=(0, 5))
     
-    #CheckBoxes
+    #----------CheckBoxes-----------#
     
-    checkbox_1 = ctk.CTkCheckBox(MainRight_frame, 
-                                 text_color='white',
-                                 font=("Consolas", 18, "bold"), 
-                                 text="Processo Automático (Com procuração)", 
-                                 hover_color='white',
-                                 border_color='white',
-                                 command=lambda: checkbox_event("1"))
+    #Modelo CheckBoxes
+    def CheckBoxModel(text, checkboxes, var):
+        modelo = ctk.CTkCheckBox(MainRight_frame, 
+                             text_color='white',
+                             font=("Consolas", 18, "bold"), 
+                             text=text, 
+                             hover_color='white',
+                             border_color='white',
+                             command=lambda: checkbox_event2(modelo, checkboxes, var))
+        return modelo
     
-    checkbox_2 = ctk.CTkCheckBox(MainRight_frame,
-                                 text_color='white',
-                                 font=("Consolas", 18, "bold"),
-                                 text="Processo Manual (Sem procuração)",
-                                 hover_color='white',
-                                 border_color='white',
-                                 command=lambda: checkbox_event("2"))
+    # Função para garantir que apenas uma CheckBox esteja selecionada
+    def checkbox_event2(checkbox, checkboxes, var):
+        for cb in checkboxes:
+            if cb != checkbox:
+                cb.deselect()
+        var.set(checkbox.cget("text"))  # Atualiza a variável com o nome do item selecionado
     
+    
+    # Variável para armazenar a opção selecionada
+    selected_option = ctk.StringVar(value="")
+    
+    # Lista para armazenar todas as checkboxes
+    checkboxes = []
+        
+    # Criar CheckBoxes
+    checkbox_1 = CheckBoxModel('Todos os cupons', checkboxes, selected_option)
+    checkbox_2 = CheckBoxModel('Autorizados e Cancelados', checkboxes, selected_option)
+    checkbox_3 = CheckBoxModel('Cancelados e Cancelamentos', checkboxes, selected_option)
+    checkbox_4 = CheckBoxModel('Autorizados e Cancelamentos', checkboxes, selected_option)
+    checkbox_5 = CheckBoxModel('Autorizados', checkboxes, selected_option)
+    checkbox_6 = CheckBoxModel('Cancelados', checkboxes, selected_option)
+    checkbox_7 = CheckBoxModel('Cancelamentos', checkboxes, selected_option)
+    
+    # Adicionar todas as checkboxes à lista para controle
+    checkboxes.extend([checkbox_1, checkbox_2, checkbox_3, checkbox_4, checkbox_5, checkbox_6, checkbox_7])
+
     # Posicionar as CheckBoxes
-    checkbox_1.pack(anchor='w', pady=(20,10), padx=20)
-    checkbox_2.pack(anchor='w', pady=10, padx=20)
-    
+    for checkbox in checkboxes:
+        checkbox.pack(anchor='w', pady=10, padx=20)
+        
     
     
     
