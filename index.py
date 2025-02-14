@@ -21,6 +21,15 @@ import keyboard
 
 import requests
 
+
+#INTERFACE GRÁFICA
+from Front.front import executarFront
+from Front.app_state import app_state
+print(f"Processo Selecionado: {app_state.selected_process}")
+print(f"Tipo de Cupom: {app_state.selected_cupom}")
+print(f"Inscrição Estadual: {app_state.inscricao_estadual}")
+print(f"Mês: {app_state.mes}")
+print(f"Ano: {app_state.ano}")
 def verificar_arquivo(url, texto_procurado):
     try:
         response = requests.get(url)
@@ -44,59 +53,23 @@ def validarAcesso():
     else:
         # print("Licença não encontrada. Execução não autorizada.")
         return False
+    
+
 validacao = validarAcesso()
 
-# Efeito de digitação
-def type_animation(text, delay=0.004):
-    for line in text.split("\n"):
-        for char in line:
-            print(Fore.YELLOW + char, end="", flush=True)  # Mostra caractere por caractere
-            time.sleep(delay)
-        print()  # Nova linha
-        time.sleep(0.004)  # Pequeno delay entre linhas
 
-
-init(autoreset=True)
-
-
-ascii_art = text2art("BUSINESS", font="roman")
-# Remove linhas em branco
-# Remove linhas em branco internas
-linhas = [line for line in ascii_art.split("\n") if line.strip() != ""]# Adiciona um pequeno espaçamento acima e abaixo
-espacinho = 1  # Define o número de linhas vazias
-art_final = "\n" * espacinho + "\n".join(linhas) + "\n" * espacinho
-
-type_animation('=' * 100)
-type_animation(art_final)
-type_animation('=' * 100)
-print('\n')
 
 
 if validacao == True:
 
+    executarFront()
 
-    # Opções para o usuário
-    print("Escolha uma das opções abaixo:")
-    print('\n')
-    print("1- Processo Automatico (Com procuração)")
-    print("2- Processo Manual (Sem procuração)")
-
-
-    # Valida a escolha do usuário
-    while True:
-        try:
-            opcaoInicial = int(input("\nDigite o número da opção desejada (1-2): "))
-            if opcaoInicial in range(1, 3):
-                break
-            else:
-                print("Opção inválida! Digite um número entre 1 e 2.")
-        except ValueError:
-            print("Entrada inválida! Digite apenas números entre 1 e 2.")
-
+    opcaoInicial = app_state.selected_process
+    entradaEscricao = app_state.inscricao_estadual
 
 
     if opcaoInicial == 1:
-        entradaEscricao = input("Digite as inscrição estadual: ")
+        
         escricoes =  entradaEscricao.split(", ")
 
 
@@ -119,8 +92,8 @@ if validacao == True:
         return primeiro_dia, ultimo_dia
 
 
-    mes_desejado = int(input("Informe o mês (1-12): "))
-    ano_desejado = int(input("Informe o ano (ex: 2024): "))
+    mes_desejado = int(app_state.mes)
+    ano_desejado = int(app_state.ano)
     variavel_inicio, variavel_final = gerar_datas_mes(mes_desejado, ano_desejado)
 
 
@@ -134,42 +107,23 @@ if validacao == True:
     print('Arquivos serão baixados em: ',downloads_directory)
 
 
+    OptionMode = app_state.selected_cupom
 
-    # Opções para o usuário
-    print("\nEscolha uma das opções abaixo:")
-    print("1- Tudo")
-    print("2- Autorizados e Cancelados")
-    print("3- Cancelados e Cancelamentos")
-    print("4- Autorizados e Cancelamentos")
-    print("5- Somente Autorizados")
-    print("6- Somente Cancelados")
-    print("7- Somente Cancelamentos")
-
-    # Valida a escolha do usuário
-    while True:
-        try:
-            opcao = int(input("\nDigite o número da opção desejada (1-7): "))
-            if opcao in range(1, 8):
-                break
-            else:
-                print("Opção inválida! Digite um número entre 1 e 7.")
-        except ValueError:
-            print("Entrada inválida! Digite apenas números entre 1 e 7.")
-
+    
     # Confirmando a escolha do usuário
     opcoes_dict = {
-        1: "Tudo",
-        2: "Autorizados e Cancelados",
-        3: "Cancelados e Cancelamentos",
-        4: "Autorizados e Cancelamentos",
-        5: "Somente Autorizados",
-        6: "Somente Cancelados",
-        7: "Somente Cancelamentos"
+        
+        "Todos os cupons": 1,
+        "Autorizados e Cancelados": 2,
+        "Cancelados e Cancelamentos": 3,
+        "Autorizados e Cancelamentos": 4,
+        "Autorizados": 5,
+        "Cancelados": 6,
+        "Cancelamentos": 7,
+        
     }
 
-    print(f"\nVocê selecionou: {opcoes_dict[opcao]}")
-
-
+    opcao = opcoes_dict[OptionMode]
 
 def entrarDTE(driver, numeroIncricao):
     # Verifica se o número tem 9 dígitos
@@ -913,6 +867,7 @@ def baixarCancelamento(driver):
 #O CÓDIGO COMEÇA A SER EXECUTADO AQUI    
 if validacao == True:    
     try:
+        
         # Configuração do Chrome
         service = Service(ChromeDriverManager().install())
         options = uc.ChromeOptions()

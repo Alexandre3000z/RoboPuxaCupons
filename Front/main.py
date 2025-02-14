@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
 from tkinter import messagebox
-
+from Front.app_state import app_state
 
 def openMainPage(lastPage):
     
@@ -14,6 +14,21 @@ def openMainPage(lastPage):
             if checkbox_b.get() == 1:
                 checkbox_a.deselect()
 
+    def save_and_close():
+        """Captura os valores dos campos e armazena no estado global antes de fechar a janela."""
+        selected_process = 1 if checkbox_a.get() == 1 else 2
+        selected_cupom = selected_option.get()
+        inscricao_estadual = Ie_entry.get()
+        mes = Month_entry.get()
+        ano = Year_entry.get()
+
+        # Atualiza os dados globais
+        app_state.set_data(selected_process, selected_cupom, inscricao_estadual, mes, ano)
+
+        # Fecha a janela principal
+        mainPage.destroy()
+        
+        
     # Fecha a janela de login
     lastPage.destroy()
 
@@ -80,7 +95,7 @@ def openMainPage(lastPage):
     
     checkbox_b = ctk.CTkCheckBox(MainLeft_frame, 
                                  text_color='white',
-                                 font=("Consolas", 18, "bold"), 
+                                 font=("Consolas", 18, "bold"),
                                  text="Processo Manual (Sem procuração)", 
                                  hover_color='white',
                                  border_color='white',
@@ -93,8 +108,8 @@ def openMainPage(lastPage):
 #-------------- CAMPO DE INSCRIÇÃO ESTADUAL --------------#
 
     # Titulo de Inscrição
-    IeLabel = ctk.CTkLabel(MainLeft_frame, 
-                           text="INSCRIÇÃO ESTADUAL:", 
+    IeLabel = ctk.CTkLabel(MainLeft_frame,
+                           text="INSCRIÇÃO ESTADUAL:",
                            font=("Consolas", 20, "bold"), 
                            text_color="white")
     
@@ -119,7 +134,7 @@ def openMainPage(lastPage):
     # Frame individual para o Mês
     month_frame = ctk.CTkFrame(date_frame, fg_color="transparent")
     month_frame.pack(side="left", padx=0)
-
+    
     # Título Mês
     MonthLabel = ctk.CTkLabel(month_frame, 
                               text="MÊS:", 
@@ -227,12 +242,6 @@ def openMainPage(lastPage):
     # Posicionar as CheckBoxes
     for checkbox in checkboxes:
         checkbox.pack(anchor='w', pady=10, padx=20)
-        
-    
-    
-    
-    
-    
     
     
     # Botão para sair do app
@@ -241,9 +250,11 @@ def openMainPage(lastPage):
                                    text_color='black', 
                                    text="EXECUTAR", 
                                    fg_color='white', 
-                                   command=mainPage.quit)
+                                   command=save_and_close)
     
     MainexitButton.pack(pady=0, side='bottom' , expand=True)
 
     # Executa a nova janela
     mainPage.mainloop()
+
+
